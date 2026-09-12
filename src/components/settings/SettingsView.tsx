@@ -162,24 +162,29 @@ export const SettingsView: React.FC = () => {
     principalSignatureUrl: schoolSettings.principalSignatureUrl || '',
   });
 
-  // Keep form in exact sync with canonical database school settings
+  const [isFormInitialized, setIsFormInitialized] = useState(false);
+
+  // Sync initial form values from canonical database settings without wiping unsubmitted user uploads
   useEffect(() => {
-    setGeneralSettings({
-      schoolName: schoolSettings.schoolName || schoolSettings.name || '',
-      affiliationNo: schoolSettings.affiliationNumber || schoolSettings.schoolCode || '',
-      principalName: schoolSettings.principalName || '',
-      phone: schoolSettings.phone || '',
-      email: schoolSettings.email || '',
-      address: schoolSettings.address || '',
-      city: schoolSettings.city || '',
-      country: schoolSettings.country || 'Pakistan',
-      website: schoolSettings.website || '',
-      currentSession: schoolSettings.currentSession || '',
-      currency: 'PKR (Rs.)',
-      timezone: 'Asia/Karachi (GMT+5)',
-      logoUrl: schoolSettings.logoUrl || '',
-      principalSignatureUrl: schoolSettings.principalSignatureUrl || '',
-    });
+    if (!isFormInitialized || schoolSettings.principalSignatureUrl !== generalSettings.principalSignatureUrl) {
+      setGeneralSettings({
+        schoolName: schoolSettings.schoolName || schoolSettings.name || '',
+        affiliationNo: schoolSettings.affiliationNumber || schoolSettings.schoolCode || '',
+        principalName: schoolSettings.principalName || '',
+        phone: schoolSettings.phone || '',
+        email: schoolSettings.email || '',
+        address: schoolSettings.address || '',
+        city: schoolSettings.city || '',
+        country: schoolSettings.country || 'Pakistan',
+        website: schoolSettings.website || '',
+        currentSession: schoolSettings.currentSession || '',
+        currency: 'PKR (Rs.)',
+        timezone: 'Asia/Karachi (GMT+5)',
+        logoUrl: schoolSettings.logoUrl || '',
+        principalSignatureUrl: schoolSettings.principalSignatureUrl || '',
+      });
+      setIsFormInitialized(true);
+    }
   }, [schoolSettings]);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

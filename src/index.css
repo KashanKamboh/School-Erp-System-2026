@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+@variant print (@media print);
 
 @layer base {
   body {
@@ -8,20 +9,57 @@
 }
 
 @media print {
-  body {
+  body, html {
     background: white !important;
     color: black !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  .no-print {
+
+  /* Hide UI chrome */
+  .no-print,
+  .print\:hidden,
+  header,
+  aside,
+  nav,
+  .desktop-titlebar {
     display: none !important;
   }
-  .print-only {
-    display: block !important;
+
+  /* Unclip main viewport containers */
+  .h-screen,
+  .w-screen,
+  .overflow-hidden,
+  .overflow-y-auto,
+  .overflow-x-hidden {
+    height: auto !important;
+    width: auto !important;
+    overflow: visible !important;
+    position: static !important;
   }
-  .print-break-inside-avoid {
-    break-inside: avoid;
-  }
-  /* Ensure background colors and gradients print accurately */
+
+  /* Core print utility overrides */
+  .print\:block { display: block !important; }
+  .print\:flex { display: flex !important; }
+  .print\:grid { display: grid !important; }
+  .print\:static { position: static !important; }
+  .print\:bg-white { background-color: white !important; }
+  .print\:text-black { color: black !important; }
+  .print\:shadow-none { box-shadow: none !important; }
+  .print\:border-none { border: none !important; }
+  .print\:p-0 { padding: 0 !important; }
+  .print\:m-0 { margin: 0 !important; }
+  .print\:w-full { width: 100% !important; }
+  .print\:max-w-none { max-width: none !important; }
+  .print\:max-h-none { max-height: none !important; }
+  .print\:overflow-visible { overflow: visible !important; }
+  .print\:break-after-page { page-break-after: always !important; break-after: page !important; }
+  .print\:break-inside-avoid { page-break-inside: avoid !important; break-inside: avoid !important; }
+
+  /* Color accuracy */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;

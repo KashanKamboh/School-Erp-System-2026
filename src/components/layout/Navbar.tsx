@@ -80,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const unreadMsgs = messages.filter((m) => !m.read);
 
   return (
-    <header className="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
+    <header className="no-print sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
       <div className="px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Left Side: Mobile Menu Button, Back Button & Search Trigger */}
         <div className="flex items-center gap-2.5 sm:gap-3 flex-1 max-w-xl">

@@ -353,7 +353,13 @@ export const ERPDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   // Persistent storage sync
-  useEffect(() => { localStorage.setItem('edupulse_settings', JSON.stringify(settings)); }, [settings]);
+  useEffect(() => {
+    try {
+      localStorage.setItem('edupulse_settings', JSON.stringify(settings));
+    } catch {
+      // Safe fallback if base64 signature/logo exceeds browser localStorage limit
+    }
+  }, [settings]);
   useEffect(() => { localStorage.setItem('edupulse_students', JSON.stringify(students)); }, [students]);
   useEffect(() => { localStorage.setItem('edupulse_teachers', JSON.stringify(teachers)); }, [teachers]);
   useEffect(() => { localStorage.setItem('edupulse_staff', JSON.stringify(staff)); }, [staff]);

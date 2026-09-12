@@ -73,7 +73,7 @@ export const DesktopTitlebar: React.FC = () => {
 
   return (
     <div
-      className="h-8 bg-slate-950 text-slate-300 border-b border-slate-800/80 flex items-center justify-between px-3 select-none text-xs z-50 shrink-0"
+      className="no-print desktop-titlebar h-8 bg-slate-950 text-slate-300 border-b border-slate-800/80 flex items-center justify-between px-3 select-none text-xs z-50 shrink-0"
       style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
     >
       {/* Left branding */}

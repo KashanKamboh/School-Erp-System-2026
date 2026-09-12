@@ -179,7 +179,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 lg:static lg:h-full lg:z-auto bg-white dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-800 shadow-xs dark:shadow-xl transition-all duration-300 ease-in-out flex flex-col shrink-0 ${
+        className={`no-print fixed inset-y-0 left-0 z-40 lg:static lg:h-full lg:z-auto bg-white dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-800 shadow-xs dark:shadow-xl transition-all duration-300 ease-in-out flex flex-col shrink-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } ${isCollapsed ? 'w-20' : 'w-64'}`}
       >

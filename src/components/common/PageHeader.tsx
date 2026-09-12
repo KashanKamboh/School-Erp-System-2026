@@ -22,7 +22,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   badge,
 }) => {
   return (
-    <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="no-print mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         {breadcrumbs && breadcrumbs.length > 0 && (
           <nav className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mb-1.5">

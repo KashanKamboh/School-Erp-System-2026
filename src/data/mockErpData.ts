@@ -55,6 +55,7 @@ export const initialSchoolSettings: SchoolSettings = {
   lateFeeAmount: 0,
   voucherDueDays: 10,
   voucherNotes: '',
+  principalSignatureUrl: '',
 };
 
 // Zero demo data - Initialized empty on fresh installation
