@@ -9,6 +9,11 @@ const rootDir = path.resolve(__dirname, '..');
 
 console.log('🚀 Starting EduPulse School ERP Windows Desktop Installer Build Pipeline...');
 
+// 0. Ensure no running processes hold release lock
+try {
+  execSync('taskkill /F /IM "EduPulse School ERP.exe" /T', { stdio: 'ignore' });
+} catch (e) {}
+
 // 1. Clean release directory
 const releaseDir = path.join(rootDir, 'release');
 if (fs.existsSync(releaseDir)) {
