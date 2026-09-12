@@ -84,8 +84,8 @@ export const SettingsView: React.FC = () => {
       const res = await checkForSoftwareUpdates();
       if (!res.success) {
         const errStr = String(res.error || '');
-        if (errStr.includes('404') || errStr.includes('releases') || errStr.includes('latest.yml')) {
-          showToast('Up to Date', `EduPulse ERP v${updateStatus.currentVersion} is running the latest available build (No new GitHub Release published).`, 'info');
+        if (errStr.includes('404') || errStr.includes('Private') || errStr.includes('releases') || errStr.includes('latest.yml')) {
+          showToast('Repo Access Notice', `GitHub repository is set to Private. Please change repository visibility to Public in GitHub Settings to enable auto-update.`, 'warning');
         } else {
           showToast('Update Notice', res.error || 'Operating locally. Current version is active.', 'info');
         }

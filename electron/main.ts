@@ -468,7 +468,7 @@ function setupIpcHandlers() {
       const msg = String(err?.message || err || '');
       let friendlyError = msg;
       if (msg.includes('404') || msg.includes('latest.yml') || msg.includes('releases')) {
-        friendlyError = 'No published software releases found on GitHub Releases yet. Running latest local build.';
+        friendlyError = 'GitHub Repository is Private or Release file missing. Make repo Public on GitHub Settings for Auto-Updater.';
       } else if (msg.includes('net::ERR') || msg.includes('ENOTFOUND') || msg.includes('offline')) {
         friendlyError = 'Offline mode: Unable to connect to GitHub update server.';
       }
