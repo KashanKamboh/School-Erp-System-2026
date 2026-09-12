@@ -385,17 +385,27 @@ export const OfficialIdCard: React.FC<OfficialIdCardProps> = ({
         {/* 7. SIGNATURES & VALIDITY BADGE                                       */}
         {/* ==================================================================== */}
         <div className="flex items-end justify-between mt-2 pt-1 pb-2 px-1">
-          {/* Cursive Signature */}
+          {/* Principal Signature */}
           <div className="text-center">
-            <span
-              className="block italic text-base text-slate-900 font-bold select-none leading-none -mb-1"
-              style={{
-                fontFamily: '"Brush Script MT", "Dancing Script", "Caveat", "Segoe Script", cursive',
-                fontSize: '18px',
-              }}
-            >
-              {signatureText}
-            </span>
+            {settings?.principalSignatureUrl ? (
+              <div className="h-6 flex items-center justify-center -mb-1">
+                <img
+                  src={settings.principalSignatureUrl}
+                  alt="Principal Signature"
+                  className="max-h-full object-contain mx-auto"
+                />
+              </div>
+            ) : (
+              <span
+                className="block italic text-base text-slate-900 font-bold select-none leading-none -mb-1"
+                style={{
+                  fontFamily: '"Brush Script MT", "Dancing Script", "Caveat", "Segoe Script", cursive',
+                  fontSize: '18px',
+                }}
+              >
+                {signatureText}
+              </span>
+            )}
             <div className="w-20 h-[1px] bg-slate-400 mx-auto my-1" />
             <span className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block">
               {isFaculty ? 'Signature' : 'Principal'}

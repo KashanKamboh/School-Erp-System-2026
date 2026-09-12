@@ -44,6 +44,7 @@ export const SettingsView: React.FC = () => {
   const { roleDefinitions, updateRolePermission, currentUser, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<'general' | 'academic' | 'rbac' | 'notifications' | 'maintenance'>('general');
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const signatureInputRef = useRef<HTMLInputElement>(null);
 
   // Factory Reset state
   const [resetConfirmation, setResetConfirmation] = useState('');
@@ -153,6 +154,7 @@ export const SettingsView: React.FC = () => {
     currency: 'PKR (Rs.)',
     timezone: 'Asia/Karachi (GMT+5)',
     logoUrl: schoolSettings.logoUrl || '',
+    principalSignatureUrl: schoolSettings.principalSignatureUrl || '',
   });
 
   // Keep form in exact sync with canonical database school settings
@@ -171,6 +173,7 @@ export const SettingsView: React.FC = () => {
       currency: 'PKR (Rs.)',
       timezone: 'Asia/Karachi (GMT+5)',
       logoUrl: schoolSettings.logoUrl || '',
+      principalSignatureUrl: schoolSettings.principalSignatureUrl || '',
     });
   }, [schoolSettings]);
 
@@ -197,6 +200,29 @@ export const SettingsView: React.FC = () => {
     showToast('Logo Cleared', 'School logo removed. Save profile to confirm.', 'info');
   };
 
+  const handleSignatureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('File Too Large', 'Please upload a signature image smaller than 2MB.', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string;
+        setGeneralSettings((prev) => ({ ...prev, principalSignatureUrl: base64 }));
+        showToast('Signature Uploaded', 'Principal signature preview updated. Click "Save Profile" to apply.', 'info');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveSignature = () => {
+    setGeneralSettings((prev) => ({ ...prev, principalSignatureUrl: '' }));
+    if (signatureInputRef.current) signatureInputRef.current.value = '';
+    showToast('Signature Removed', 'Principal signature cleared. Save profile to confirm.', 'info');
+  };
+
   const handleSaveGeneral = async (e: React.FormEvent) => {
     e.preventDefault();
     await updateSchoolSettings({
@@ -215,8 +241,9 @@ export const SettingsView: React.FC = () => {
       currency: 'PKR',
       currencySymbol: 'Rs.',
       logoUrl: generalSettings.logoUrl,
+      principalSignatureUrl: generalSettings.principalSignatureUrl,
     });
-    showToast('Settings Saved', 'Institutional profile and logo updated successfully.');
+    showToast('Settings Saved', 'Institutional profile and Principal signature updated successfully.');
   };
 
   return (
@@ -314,6 +341,68 @@ export const SettingsView: React.FC = () => {
                     >
                       <Trash2 className="w-4 h-4" />
                       <span>Remove Logo</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Principal Signature Section */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+              <div className="relative shrink-0">
+                {generalSettings.principalSignatureUrl ? (
+                  <div className="w-32 h-16 rounded-xl overflow-hidden border-2 border-indigo-500 shadow-md bg-white flex items-center justify-center p-1.5">
+                    <img
+                      src={generalSettings.principalSignatureUrl}
+                      alt="Principal Signature Preview"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-32 h-16 rounded-xl bg-slate-100 dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center text-slate-500">
+                    <span className="font-serif italic font-bold text-sm text-slate-700 dark:text-slate-300">
+                      {generalSettings.principalName || 'Principal'}
+                    </span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase">Text Signature</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 space-y-2">
+                <h4 className="font-bold text-sm text-slate-900 dark:text-white">
+                  Official Principal Signature / Stamp Image
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Upload an image of the Principal&apos;s official signature (PNG with transparent background or JPG). This signature will automatically be printed on <strong>Student Progress Result Cards</strong>, <strong>Character & Academic Certificates</strong>, and <strong>ID Badges</strong>.
+                </p>
+
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <input
+                    type="file"
+                    ref={signatureInputRef}
+                    onChange={handleSignatureUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => signatureInputRef.current?.click()}
+                    className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs cursor-pointer"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>{generalSettings.principalSignatureUrl ? 'Change Signature' : 'Upload Signature Image'}</span>
+                  </button>
+
+                  {generalSettings.principalSignatureUrl && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveSignature}
+                      className="px-3.5 py-2 border border-rose-200 dark:border-rose-800 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Remove Signature</span>
                     </button>
                   )}
                 </div>

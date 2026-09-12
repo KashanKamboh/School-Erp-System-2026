@@ -617,6 +617,7 @@ export interface SchoolSettings {
   address: string;
   website: string;
   principalName: string;
+  principalSignatureUrl?: string;
   currency: string;
   currencySymbol: string;
   currentSession: string;

@@ -225,171 +225,186 @@ export const CertificateGenerator: React.FC = () => {
         <div className="flex justify-center p-2 sm:p-4 bg-slate-100 dark:bg-slate-950/60 rounded-2xl border border-slate-200/80 dark:border-slate-800">
           <div
             id="official-certificate-canvas"
-            className="w-full max-w-[820px] bg-[#fffdf9] text-slate-900 p-8 sm:p-12 rounded-xl shadow-lg print:shadow-none print:m-0 print:p-8 border-8 border-double border-amber-800/60 relative overflow-hidden"
+            className="w-full max-w-[840px] bg-[#FFFDF7] text-slate-900 p-8 sm:p-12 rounded-xl shadow-2xl print:shadow-none print:m-0 print:p-8 border-[10px] border-amber-900/90 relative overflow-hidden font-serif"
             style={{
-              fontFamily: 'serif',
+              boxShadow: '0 20px 40px -15px rgba(120, 53, 15, 0.25)',
             }}
           >
-            {/* Ornate Corner Accents */}
-            <div className="absolute top-2 left-2 w-12 h-12 border-t-2 border-l-2 border-amber-700/50 pointer-events-none" />
-            <div className="absolute top-2 right-2 w-12 h-12 border-t-2 border-r-2 border-amber-700/50 pointer-events-none" />
-            <div className="absolute bottom-2 left-2 w-12 h-12 border-b-2 border-l-2 border-amber-700/50 pointer-events-none" />
-            <div className="absolute bottom-2 right-2 w-12 h-12 border-b-2 border-r-2 border-amber-700/50 pointer-events-none" />
+            {/* Inner Gold Ribbon Border */}
+            <div className="border-2 border-amber-500/80 p-6 sm:p-8 relative">
+              {/* Ornate Corner Accents */}
+              <div className="absolute -top-3 -left-3 text-amber-700 font-bold select-none text-base">❖</div>
+              <div className="absolute -top-3 -right-3 text-amber-700 font-bold select-none text-base">❖</div>
+              <div className="absolute -bottom-3 -left-3 text-amber-700 font-bold select-none text-base">❖</div>
+              <div className="absolute -bottom-3 -right-3 text-amber-700 font-bold select-none text-base">❖</div>
 
-            {/* Faint Background Watermark */}
-            {schoolLogo && (
-              <div className="absolute inset-0 flex items-center justify-center opacity-[0.035] pointer-events-none select-none">
-                <img src={schoolLogo} alt="Watermark" className="w-96 h-96 object-contain filter grayscale" />
-              </div>
-            )}
-
-            {/* Header with School Branding */}
-            <div className="relative text-center pb-6 border-b-2 border-amber-800/30">
-              {/* School Logo */}
-              {schoolLogo ? (
-                <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-white border-2 border-amber-600/40 p-1 flex items-center justify-center shadow-xs">
-                  <img
-                    src={schoolLogo}
-                    alt={schoolName}
-                    className="w-full h-full object-contain rounded-full"
-                  />
-                </div>
-              ) : (
-                <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-100 border-2 border-amber-600/40 flex items-center justify-center text-amber-900">
-                  <School className="w-8 h-8" />
+              {/* Faint Background Watermark */}
+              {schoolLogo && (
+                <div className="absolute inset-0 flex items-center justify-center opacity-[0.04] pointer-events-none select-none">
+                  <img src={schoolLogo} alt="Watermark" className="w-96 h-96 object-contain filter grayscale" />
                 </div>
               )}
 
-              <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-wider text-amber-950">
-                {schoolName}
-              </h1>
+              {/* Header with School Branding */}
+              <div className="relative text-center pb-5 border-b-2 border-amber-900/30">
+                {/* School Logo */}
+                {schoolLogo ? (
+                  <div className="w-20 h-20 mx-auto mb-2 rounded-full bg-white border-2 border-amber-600/60 p-1 flex items-center justify-center shadow-md">
+                    <img
+                      src={schoolLogo}
+                      alt={schoolName}
+                      className="w-full h-full object-contain rounded-full"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-amber-100 border-2 border-amber-600 flex items-center justify-center text-amber-950 shadow-sm">
+                    <School className="w-8 h-8 text-amber-900" />
+                  </div>
+                )}
 
-              {resolvedSchool.tagline && (
-                <p className="text-xs italic text-amber-900/80 mt-0.5 tracking-wide">
-                  &ldquo;{resolvedSchool.tagline}&rdquo;
+                <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-wider text-amber-950 font-serif drop-shadow-xs">
+                  {schoolName}
+                </h1>
+
+                {resolvedSchool.tagline && (
+                  <p className="text-xs italic text-amber-900 font-medium mt-0.5 tracking-wide">
+                    &ldquo;{resolvedSchool.tagline}&rdquo;
+                  </p>
+                )}
+
+                <p className="text-xs text-slate-700 mt-1 font-sans font-medium">
+                  {address}
+                  {phone ? ` • Tel: ${phone}` : ''}
+                  {email ? ` • Email: ${email}` : ''}
                 </p>
-              )}
 
-              <p className="text-xs text-slate-600 mt-1 font-sans">
-                {address}
-                {phone ? ` • Tel: ${phone}` : ''}
-                {email ? ` • Email: ${email}` : ''}
-              </p>
-
-              {(affiliationNumber || registrationNumber) && (
-                <p className="text-[11px] text-slate-500 font-sans mt-0.5">
-                  {affiliationNumber ? `Affiliation No: ${affiliationNumber}` : ''}
-                  {affiliationNumber && registrationNumber ? ' | ' : ''}
-                  {registrationNumber ? `Registration No: ${registrationNumber}` : ''}
-                </p>
-              )}
-            </div>
-
-            {/* Certificate Title Badge */}
-            <div className="text-center my-6">
-              <div className="inline-block relative">
-                <div className="bg-gradient-to-r from-amber-800 via-amber-900 to-amber-800 text-amber-100 px-8 py-2 rounded-md uppercase tracking-[0.2em] font-sans font-black text-sm sm:text-base shadow-sm">
-                  {currentConfig.badgeTitle}
-                </div>
-                <div className="flex justify-between items-center px-2 mt-1 font-sans text-[11px] text-slate-500">
-                  <span>{certificateRefNumber}</span>
-                  <span>Session: {sessionYear}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Certificate Body */}
-            <div className="py-4 text-slate-800 text-sm sm:text-base leading-relaxed text-justify space-y-4 px-2 sm:px-6">
-              <p>
-                This is to certify that{' '}
-                <strong className="text-slate-950 underline decoration-amber-600/60 underline-offset-4 uppercase font-bold">
-                  {activeStudent.firstName} {activeStudent.lastName}
-                </strong>
-                , child of{' '}
-                <strong className="text-slate-950 font-bold">
-                  {activeStudent.fatherName || activeStudent.parentName || 'Guardian'}
-                </strong>
-                , bearing Admission Number{' '}
-                <strong className="font-mono text-slate-950">{activeStudent.admissionNo || 'N/A'}</strong> and Roll Number{' '}
-                <strong className="font-mono text-slate-950">{activeStudent.rollNumber || 'N/A'}</strong>, is a registered student of Class{' '}
-                <strong className="text-slate-950">{activeStudent.class} (Section {activeStudent.section || 'A'})</strong> at this institution.
-              </p>
-
-              {selectedType === 'character' && (
-                <p>
-                  During the period of their academic stay, their conduct, character, and institutional discipline have been observed to be{' '}
-                  <strong className="text-amber-900 font-bold">Exemplary and Commendable</strong>. To the best of our knowledge and official record, they took active part in curricular activities and exhibited respectful behavior toward peers and faculty members.
-                </p>
-              )}
-
-              {selectedType === 'bonafide' && (
-                <p>
-                  They are a bonafide and regular student of our institution for the academic academic session{' '}
-                  <strong>{sessionYear}</strong>. Their enrollment is active and verified as per the institutional register.
-                </p>
-              )}
-
-              {selectedType === 'transfer' && (
-                <p>
-                  All institutional dues, library balances, and examination clearances against this student have been settled in full up to the current term. Their general conduct during attendance was satisfactory. We wish them success in their future academic endeavors.
-                </p>
-              )}
-
-              {selectedType === 'excellence' && (
-                <p>
-                  This certificate is awarded in recognition of scholastic diligence, exceptional examination performance, and academic dedication exhibited during the <strong>{sessionYear}</strong> evaluation period.
-                </p>
-              )}
-
-              {customRemark && (
-                <p className="italic text-slate-700 bg-amber-50/70 p-3 rounded-lg border border-amber-200/60 font-sans text-xs">
-                  Special Commendation: {customRemark}
-                </p>
-              )}
-
-              <p>
-                We wish them continued success and distinction in all future educational pursuits.
-              </p>
-            </div>
-
-            {/* Signatures & Seal Section */}
-            <div className="grid grid-cols-3 gap-4 pt-10 mt-8 border-t border-amber-800/20 items-end font-sans text-xs">
-              {/* Issue Date */}
-              <div className="text-left">
-                <span className="text-slate-500 block text-[10px] uppercase font-bold">Date of Issue</span>
-                <strong className="text-slate-900 block mt-0.5">
-                  {new Date(issueDate).toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </strong>
-                <span className="text-[10px] text-slate-400 mt-1 block">Institutional Records</span>
+                {(affiliationNumber || registrationNumber) && (
+                  <p className="text-[11px] text-amber-900/80 font-sans mt-0.5 font-semibold">
+                    {affiliationNumber ? `Affiliation No: ${affiliationNumber}` : ''}
+                    {affiliationNumber && registrationNumber ? ' | ' : ''}
+                    {registrationNumber ? `Registration No: ${registrationNumber}` : ''}
+                  </p>
+                )}
               </div>
 
-              {/* Official Seal Emblem */}
-              <div className="flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 rounded-full border-2 border-dashed border-amber-700/60 flex flex-col items-center justify-center text-amber-900 p-1">
-                  <ShieldCheck className="w-5 h-5 text-amber-700" />
-                  <span className="text-[7px] font-black uppercase tracking-widest leading-none mt-1">OFFICIAL SEAL</span>
-                  <span className="text-[6px] text-amber-800 leading-none">{schoolName.slice(0, 14)}</span>
+              {/* Certificate Title Banner */}
+              <div className="text-center my-6">
+                <div className="inline-block relative">
+                  <div className="bg-gradient-to-r from-amber-900 via-amber-800 to-amber-900 text-amber-100 px-10 py-2.5 rounded-sm uppercase tracking-[0.25em] font-sans font-black text-sm sm:text-base shadow-md border-y-2 border-amber-400">
+                    {currentConfig.badgeTitle}
+                  </div>
+                  <div className="flex justify-between items-center px-2 mt-1.5 font-sans text-[11px] font-bold text-amber-900/90">
+                    <span>Doc Ref: {certificateRefNumber}</span>
+                    <span>Session: {sessionYear}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Principal Signature */}
-              <div className="text-right">
-                <div className="inline-block text-center min-w-[120px]">
-                  <span
-                    className="block font-serif italic text-base text-slate-800 font-bold"
-                    style={{ fontFamily: 'Georgia, cursive' }}
-                  >
-                    {principalName}
-                  </span>
-                  <div className="w-28 h-px bg-slate-400 mx-auto my-1" />
-                  <strong className="text-slate-800 block text-[11px] uppercase tracking-wider">
-                    Principal
+              {/* Certificate Body */}
+              <div className="py-4 text-slate-900 text-sm sm:text-base leading-relaxed text-justify space-y-4 px-2 sm:px-6">
+                <p>
+                  This is to certify that{' '}
+                  <strong className="text-amber-950 underline decoration-amber-600 underline-offset-4 uppercase font-black text-base sm:text-lg">
+                    {activeStudent.firstName} {activeStudent.lastName}
                   </strong>
-                  <span className="text-[10px] text-slate-500">{schoolName}</span>
+                  , child of{' '}
+                  <strong className="text-slate-950 font-bold">
+                    {activeStudent.fatherName || activeStudent.parentName || 'Guardian'}
+                  </strong>
+                  , bearing Admission Number{' '}
+                  <strong className="font-mono text-slate-950">{activeStudent.admissionNo || 'N/A'}</strong> and Roll Number{' '}
+                  <strong className="font-mono text-slate-950">{activeStudent.rollNumber || 'N/A'}</strong>, is a registered student of Class{' '}
+                  <strong className="text-slate-950">{activeStudent.class} (Section {activeStudent.section || 'A'})</strong> at this institution.
+                </p>
+
+                {selectedType === 'character' && (
+                  <p>
+                    During the period of their academic stay, their conduct, character, and institutional discipline have been observed to be{' '}
+                    <strong className="text-amber-900 font-bold">Exemplary and Commendable</strong>. To the best of our knowledge and official record, they took active part in co-curricular activities and exhibited respectful behavior toward faculty and peers.
+                  </p>
+                )}
+
+                {selectedType === 'bonafide' && (
+                  <p>
+                    They are a bonafide and regular student of our institution for the academic session{' '}
+                    <strong>{sessionYear}</strong>. Their enrollment is active and verified as per the institutional register.
+                  </p>
+                )}
+
+                {selectedType === 'transfer' && (
+                  <p>
+                    All institutional dues, library balances, and examination clearances against this student have been settled in full up to the current term. Their general conduct during attendance was satisfactory. We wish them success in their future academic endeavors.
+                  </p>
+                )}
+
+                {selectedType === 'excellence' && (
+                  <p>
+                    This certificate is awarded in recognition of scholastic diligence, exceptional examination performance, and academic dedication exhibited during the <strong>{sessionYear}</strong> evaluation period.
+                  </p>
+                )}
+
+                {customRemark && (
+                  <p className="italic text-amber-950 bg-amber-100/60 p-3 rounded-lg border border-amber-300 font-sans text-xs font-medium">
+                    Special Commendation: {customRemark}
+                  </p>
+                )}
+
+                <p>
+                  We wish them continued success and distinction in all future educational pursuits.
+                </p>
+              </div>
+
+              {/* Signatures & Golden Wax Seal Section */}
+              <div className="grid grid-cols-3 gap-4 pt-8 mt-6 border-t border-amber-800/30 items-end font-sans text-xs">
+                {/* Issue Date */}
+                <div className="text-left">
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold">Date of Issue</span>
+                  <strong className="text-slate-900 block mt-0.5">
+                    {new Date(issueDate).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </strong>
+                  <span className="text-[10px] text-slate-400 mt-1 block">Verified Record</span>
+                </div>
+
+                {/* Golden Wax Seal Emblem with Ribbon Tails */}
+                <div className="flex flex-col items-center justify-center text-center relative">
+                  <div className="relative flex flex-col items-center">
+                    <div className="w-18 h-18 rounded-full bg-gradient-to-br from-amber-400 via-amber-600 to-amber-800 border-4 border-amber-200 flex flex-col items-center justify-center text-white p-1 shadow-lg shadow-amber-900/30 ring-2 ring-amber-700">
+                      <ShieldCheck className="w-6 h-6 text-amber-100 drop-shadow-xs" />
+                      <span className="text-[6.5px] font-black uppercase tracking-widest leading-none mt-0.5 text-amber-100">OFFICIAL SEAL</span>
+                      <span className="text-[6px] text-amber-200 leading-none truncate max-w-[50px]">{schoolName.slice(0, 10)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Principal Signature */}
+                <div className="text-right">
+                  <div className="inline-block text-center min-w-[140px]">
+                    {resolvedSchool.principalSignatureUrl ? (
+                      <div className="h-10 flex items-center justify-center mb-1">
+                        <img
+                          src={resolvedSchool.principalSignatureUrl}
+                          alt="Principal Signature"
+                          className="max-h-full object-contain mx-auto"
+                        />
+                      </div>
+                    ) : (
+                      <span
+                        className="block font-serif italic text-base text-slate-900 font-bold"
+                        style={{ fontFamily: '"Brush Script MT", "Dancing Script", Georgia, cursive' }}
+                      >
+                        {principalName}
+                      </span>
+                    )}
+                    <div className="w-32 h-px bg-slate-500 mx-auto my-1" />
+                    <strong className="text-slate-900 block text-[11px] uppercase tracking-wider font-bold">
+                      Principal / Head of Institution
+                    </strong>
+                    <span className="text-[10px] text-slate-600 block">{schoolName}</span>
+                  </div>
                 </div>
               </div>
             </div>

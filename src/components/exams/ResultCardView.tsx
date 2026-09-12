@@ -343,12 +343,15 @@ export const ResultCardView: React.FC<ResultCardViewProps> = ({
     return (
       <div
         key={student.id}
-        className={`max-w-4xl mx-auto bg-white text-slate-900 shadow-xl rounded-2xl border-4 border-double border-slate-800 p-6 sm:p-10 font-serif print:shadow-none print:border-2 print:border-black print:p-6 print:m-0 print:w-full print:max-w-none ${
+        className={`max-w-4xl mx-auto bg-white text-slate-900 shadow-xl rounded-2xl border-4 border-double border-slate-800 p-4 sm:p-6 font-serif print:shadow-none print:border-2 print:border-black print:p-4 print:m-0 print:w-full print:max-w-none print:break-inside-avoid ${
           isBatch ? 'mb-8 break-after-page page-break-after-always' : ''
         }`}
+        style={{
+          boxSizing: 'border-box',
+        }}
       >
         {/* Certificate Outer Border Frame */}
-        <div className="border-2 border-slate-900 p-4 sm:p-6 relative">
+        <div className="border-2 border-slate-900 p-3 sm:p-4 relative">
           {/* Decorative Corner Ornaments */}
           <div className="absolute top-1 left-1 text-slate-700 select-none text-xs">❖</div>
           <div className="absolute top-1 right-1 text-slate-700 select-none text-xs">❖</div>
@@ -356,11 +359,11 @@ export const ResultCardView: React.FC<ResultCardViewProps> = ({
           <div className="absolute bottom-1 right-1 text-slate-700 select-none text-xs">❖</div>
 
           {/* School Header Section */}
-          <div className="text-center pb-4 border-b-2 border-slate-900">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-1">
+          <div className="text-center pb-2 border-b-2 border-slate-900">
+            <div className="flex flex-row items-center justify-center gap-3 mb-1">
               {/* School Emblem / Custom Logo */}
               {schoolSettings.logoUrl ? (
-                <div className="w-16 h-16 rounded-full border-2 border-slate-900 bg-white p-1 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
+                <div className="w-12 h-12 rounded-full border-2 border-slate-900 bg-white p-0.5 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
                   <img
                     src={schoolSettings.logoUrl}
                     alt={schoolSettings.schoolName}
@@ -368,102 +371,85 @@ export const ResultCardView: React.FC<ResultCardViewProps> = ({
                   />
                 </div>
               ) : (
-                <div className="w-14 h-14 rounded-full border-2 border-slate-900 bg-slate-50 flex items-center justify-center text-slate-900 shrink-0">
-                  <Shield className="w-8 h-8 text-blue-900" />
+                <div className="w-10 h-10 rounded-full border-2 border-slate-900 bg-slate-50 flex items-center justify-center text-slate-900 shrink-0">
+                  <Shield className="w-6 h-6 text-blue-900" />
                 </div>
               )}
 
               <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-wide text-slate-950 font-serif">
+                <h1 className="text-xl sm:text-2xl font-extrabold uppercase tracking-wide text-slate-950 font-serif leading-tight">
                   {schoolSettings.schoolName || 'ACADEMIC INSTITUTION'}
                 </h1>
-                <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-slate-700 mt-0.5">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-700">
                   {schoolSettings.tagline || (schoolSettings.city ? `${schoolSettings.city} Campus` : 'Knowledge • Character • Academic Excellence')}
                 </p>
               </div>
             </div>
 
-            <p className="text-[11px] text-slate-600">
-              {schoolSettings.affiliationNumber ? `Affiliation / Registration No: ${schoolSettings.affiliationNumber}` : 'Affiliated with Board of Intermediate & Secondary Education'} • Academic Session {schoolSettings.currentSession || '2025–2026'}
-            </p>
-            <p className="text-[10px] text-slate-500">
-              {schoolSettings.address || (schoolSettings.city ? `${schoolSettings.city}, ${schoolSettings.country || 'Pakistan'}` : '')} {schoolSettings.phone ? `• Tel: ${schoolSettings.phone}` : ''}
+            <p className="text-[10px] text-slate-600">
+              {schoolSettings.affiliationNumber ? `Affiliation No: ${schoolSettings.affiliationNumber}` : 'Affiliated with Board of Intermediate & Secondary Education'} • Academic Session {schoolSettings.currentSession || '2025–2026'}
             </p>
 
             {/* Official Report Card Title Banner */}
-            <div className="mt-3 inline-block px-6 py-1.5 bg-slate-900 text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-sm shadow-xs">
+            <div className="mt-1.5 inline-block px-5 py-1 bg-slate-900 text-white font-bold text-xs uppercase tracking-wider rounded-sm shadow-xs">
               STUDENT PROGRESS REPORT & DETAILED MARKS CERTIFICATE
             </div>
-            <div className="text-xs font-bold text-slate-800 uppercase tracking-wide mt-1">
+            <div className="text-[11px] font-bold text-slate-800 uppercase tracking-wide mt-0.5">
               {selectedTerm.toUpperCase()} EXAMINATION
             </div>
           </div>
 
           {/* Student Profile & Bio-Data Grid */}
-          <div className="my-4 border border-slate-800 text-xs">
-            <div className="grid grid-cols-1 md:grid-cols-12">
+          <div className="my-2 border border-slate-800 text-xs">
+            <div className="grid grid-cols-12">
               {/* Data fields */}
-              <div className="md:col-span-9 p-3 grid grid-cols-2 gap-y-2 gap-x-4 border-b md:border-b-0 md:border-r border-slate-800">
+              <div className="col-span-9 p-2.5 grid grid-cols-2 gap-y-1.5 gap-x-3 border-r border-slate-800">
                 <div>
-                  <span className="text-slate-500 font-semibold block text-[10px] uppercase">Student Name:</span>
-                  <strong className="text-sm font-bold text-slate-900">
+                  <span className="text-slate-500 font-semibold block text-[9.5px] uppercase">Student Name:</span>
+                  <strong className="text-xs font-bold text-slate-900 truncate block">
                     {student.firstName} {student.lastName}
                   </strong>
                 </div>
 
                 <div>
-                  <span className="text-slate-500 font-semibold block text-[10px] uppercase">Father / Guardian Name:</span>
-                  <strong className="text-sm font-bold text-slate-900">
+                  <span className="text-slate-500 font-semibold block text-[9.5px] uppercase">Father / Guardian Name:</span>
+                  <strong className="text-xs font-bold text-slate-900 truncate block">
                     {student.fatherName || student.parentName || 'Guardian'}
                   </strong>
                 </div>
 
                 <div>
-                  <span className="text-slate-500 font-semibold block text-[10px] uppercase">Roll Number:</span>
-                  <strong className="text-sm font-bold text-blue-900">
+                  <span className="text-slate-500 font-semibold block text-[9.5px] uppercase">Roll Number:</span>
+                  <strong className="text-xs font-bold text-blue-900">
                     #{student.rollNumber || '01'}
                   </strong>
                 </div>
 
                 <div>
-                  <span className="text-slate-500 font-semibold block text-[10px] uppercase">Admission / Reg. No:</span>
-                  <strong className="text-sm font-bold text-slate-900">
+                  <span className="text-slate-500 font-semibold block text-[9.5px] uppercase">Admission / Reg. No:</span>
+                  <strong className="text-xs font-bold text-slate-900">
                     {student.admissionNo || 'RPS-2025-001'}
                   </strong>
                 </div>
 
                 <div>
-                  <span className="text-slate-500 font-semibold block text-[10px] uppercase">Class & Section:</span>
-                  <strong className="text-sm font-bold text-slate-900">
+                  <span className="text-slate-500 font-semibold block text-[9.5px] uppercase">Class & Section:</span>
+                  <strong className="text-xs font-bold text-slate-900">
                     {student.class} - {student.section || 'A'}
                   </strong>
                 </div>
 
                 <div>
-                  <span className="text-slate-500 font-semibold block text-[10px] uppercase">B-Form / CNIC:</span>
-                  <strong className="text-sm font-mono text-slate-800">
-                    {student.cnicOrBForm || student.cnic || 'N/A'}
-                  </strong>
-                </div>
-
-                <div>
-                  <span className="text-slate-500 font-semibold block text-[10px] uppercase">Date of Birth:</span>
-                  <strong className="text-sm font-bold text-slate-900">
-                    {student.dateOfBirth || student.dob || 'Not Recorded'}
-                  </strong>
-                </div>
-
-                <div>
-                  <span className="text-slate-500 font-semibold block text-[10px] uppercase">Attendance Record:</span>
-                  <strong className="text-sm font-bold text-emerald-800">
+                  <span className="text-slate-500 font-semibold block text-[9.5px] uppercase">Attendance Record:</span>
+                  <strong className="text-xs font-bold text-emerald-800 truncate block">
                     {attendanceInfo.label}
                   </strong>
                 </div>
               </div>
 
               {/* Student Photo Box */}
-              <div className="md:col-span-3 p-3 flex flex-col items-center justify-center bg-slate-50">
-                <div className="w-24 h-28 border-2 border-dashed border-slate-400 rounded-sm flex flex-col items-center justify-center overflow-hidden bg-white shadow-xs">
+              <div className="col-span-3 p-2 flex flex-col items-center justify-center bg-slate-50">
+                <div className="w-18 h-20 border border-slate-400 rounded-sm flex flex-col items-center justify-center overflow-hidden bg-white shadow-xs">
                   {student.photoUrl || student.avatar ? (
                     <img
                       src={student.photoUrl || student.avatar}
@@ -471,10 +457,10 @@ export const ResultCardView: React.FC<ResultCardViewProps> = ({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="text-center p-2">
-                      <User className="w-8 h-8 text-slate-300 mx-auto mb-1" />
-                      <span className="text-[9px] text-slate-400 uppercase font-bold leading-tight block">
-                        Passport Size Photo
+                    <div className="text-center p-1">
+                      <User className="w-6 h-6 text-slate-300 mx-auto mb-0.5" />
+                      <span className="text-[8px] text-slate-400 uppercase font-bold leading-tight block">
+                        Student Photo
                       </span>
                     </div>
                   )}
@@ -484,20 +470,20 @@ export const ResultCardView: React.FC<ResultCardViewProps> = ({
           </div>
 
           {/* Detailed Marks Statement Table */}
-          <div className="overflow-x-auto my-4 border border-slate-800">
+          <div className="overflow-x-auto my-2 border border-slate-800">
             <table className="w-full text-left border-collapse font-sans">
-              <thead className="bg-slate-900 text-white text-[11px] uppercase tracking-wider font-bold">
+              <thead className="bg-slate-900 text-white text-[10px] uppercase tracking-wider font-bold">
                 <tr>
-                  <th className="p-2 border-r border-slate-800 text-center w-10">Sr</th>
-                  <th className="p-2 border-r border-slate-800">Course / Subject Name</th>
-                  <th className="p-2 border-r border-slate-800 text-center w-16">Max</th>
-                  <th className="p-2 border-r border-slate-800 text-center w-16">Pass</th>
-                  <th className="p-2 border-r border-slate-800 text-center w-16">Theory</th>
-                  <th className="p-2 border-r border-slate-800 text-center w-16">Pract.</th>
-                  <th className="p-2 border-r border-slate-800 text-center w-20">Obtained</th>
-                  <th className="p-2 border-r border-slate-800 text-center w-16">%age</th>
-                  <th className="p-2 border-r border-slate-800 text-center w-16">Grade</th>
-                  <th className="p-2 text-center w-36">Remarks</th>
+                  <th className="p-1.5 border-r border-slate-800 text-center w-8">Sr</th>
+                  <th className="p-1.5 border-r border-slate-800">Course / Subject Name</th>
+                  <th className="p-1.5 border-r border-slate-800 text-center w-14">Max</th>
+                  <th className="p-1.5 border-r border-slate-800 text-center w-14">Pass</th>
+                  <th className="p-1.5 border-r border-slate-800 text-center w-14">Theory</th>
+                  <th className="p-1.5 border-r border-slate-800 text-center w-14">Pract.</th>
+                  <th className="p-1.5 border-r border-slate-800 text-center w-16">Obtained</th>
+                  <th className="p-1.5 border-r border-slate-800 text-center w-14">%age</th>
+                  <th className="p-1.5 border-r border-slate-800 text-center w-14">Grade</th>
+                  <th className="p-1.5 text-center w-28">Remarks</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800">
@@ -508,39 +494,39 @@ export const ResultCardView: React.FC<ResultCardViewProps> = ({
                   const gr = row.grade || '-';
 
                   return (
-                    <tr key={row.sr} className="text-[11px] hover:bg-slate-50/70">
-                      <td className="p-1.5 border-r border-slate-800 text-center font-bold text-slate-600">
+                    <tr key={row.sr} className="text-[10.5px]">
+                      <td className="p-1 border-r border-slate-800 text-center font-bold text-slate-600">
                         {row.sr}
                       </td>
-                      <td className="p-1.5 border-r border-slate-800 font-bold text-slate-900">
+                      <td className="p-1 border-r border-slate-800 font-bold text-slate-900">
                         {row.subject}
                       </td>
-                      <td className="p-1.5 border-r border-slate-800 text-center">{row.totalMarks}</td>
-                      <td className="p-1.5 border-r border-slate-800 text-center text-slate-600">{row.passMarks}</td>
-                      <td className="p-1.5 border-r border-slate-800 text-center text-slate-700">
+                      <td className="p-1 border-r border-slate-800 text-center">{row.totalMarks}</td>
+                      <td className="p-1 border-r border-slate-800 text-center text-slate-600">{row.passMarks}</td>
+                      <td className="p-1 border-r border-slate-800 text-center text-slate-700">
                         {row.theoryMarks !== null ? row.theoryMarks : '-'}
                       </td>
-                      <td className="p-1.5 border-r border-slate-800 text-center text-slate-500">
+                      <td className="p-1 border-r border-slate-800 text-center text-slate-500">
                         {row.practicalMarks !== undefined && row.practicalMarks !== null ? row.practicalMarks : '-'}
                       </td>
-                      <td className="p-1.5 border-r border-slate-800 text-center font-extrabold text-slate-950">
+                      <td className="p-1 border-r border-slate-800 text-center font-extrabold text-slate-950">
                         {row.obtainedMarks !== null ? (
                           row.obtainedMarks
                         ) : (
                           <span className="text-slate-400 font-medium italic">Pending</span>
                         )}
                       </td>
-                      <td className="p-1.5 border-r border-slate-800 text-center font-semibold">
+                      <td className="p-1 border-r border-slate-800 text-center font-semibold">
                         {pct !== null ? `${pct}%` : '-'}
                       </td>
-                      <td className="p-1.5 border-r border-slate-800 text-center font-extrabold text-blue-900">
+                      <td className="p-1 border-r border-slate-800 text-center font-extrabold text-blue-900">
                         {row.isRecorded ? gr : <span className="text-slate-400 font-normal">-</span>}
                       </td>
-                      <td className="p-1.5 text-center text-slate-700 font-medium">
+                      <td className="p-1 text-center text-slate-700 font-medium text-[9.5px]">
                         {row.isRecorded ? (
                           row.remarks
                         ) : (
-                          <span className="text-slate-400 text-[10px] italic">Pending Marks</span>
+                          <span className="text-slate-400 italic">Pending</span>
                         )}
                       </td>
                     </tr>
@@ -549,25 +535,25 @@ export const ResultCardView: React.FC<ResultCardViewProps> = ({
               </tbody>
               {/* Grand Total Summary Row */}
               <tfoot>
-                <tr className="bg-slate-100 text-slate-950 font-bold border-t-2 border-slate-900 text-xs">
-                  <td colSpan={2} className="p-2 border-r border-slate-800 uppercase tracking-wider text-right pr-3 font-extrabold">
+                <tr className="bg-slate-100 text-slate-950 font-bold border-t-2 border-slate-900 text-[11px]">
+                  <td colSpan={2} className="p-1.5 border-r border-slate-800 uppercase tracking-wider text-right pr-3 font-extrabold">
                     Grand Total:
                   </td>
-                  <td className="p-2 border-r border-slate-800 text-center font-extrabold">
+                  <td className="p-1.5 border-r border-slate-800 text-center font-extrabold">
                     {hasRecordedMarks ? totalMaxMarks : '-'}
                   </td>
-                  <td className="p-2 border-r border-slate-800 text-center text-slate-500">-</td>
-                  <td colSpan={2} className="p-2 border-r border-slate-800 text-center text-slate-500">-</td>
-                  <td className="p-2 border-r border-slate-800 text-center font-extrabold text-sm text-blue-900">
+                  <td className="p-1.5 border-r border-slate-800 text-center text-slate-500">-</td>
+                  <td colSpan={2} className="p-1.5 border-r border-slate-800 text-center text-slate-500">-</td>
+                  <td className="p-1.5 border-r border-slate-800 text-center font-extrabold text-xs text-blue-900">
                     {hasRecordedMarks ? totalObtainedMarks : '-'}
                   </td>
-                  <td className="p-2 border-r border-slate-800 text-center font-extrabold text-sm">
+                  <td className="p-1.5 border-r border-slate-800 text-center font-extrabold text-xs">
                     {overallPercentage !== null ? `${overallPercentage}%` : '-'}
                   </td>
-                  <td className="p-2 border-r border-slate-800 text-center font-extrabold text-sm text-emerald-800">
+                  <td className="p-1.5 border-r border-slate-800 text-center font-extrabold text-xs text-emerald-800">
                     {gradeInfo.grade}
                   </td>
-                  <td className="p-2 text-center font-bold text-xs uppercase">
+                  <td className="p-1.5 text-center font-bold text-[11px] uppercase">
                     {hasRecordedMarks ? (
                       parseFloat(overallPercentage || '0') >= 40 ? (
                         <span className="text-emerald-800">PASSED</span>
@@ -583,137 +569,100 @@ export const ResultCardView: React.FC<ResultCardViewProps> = ({
             </table>
           </div>
 
-          {/* Behavioral Conduct & Co-Curricular Assessment */}
-          <div className="my-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-1 border-b border-slate-800 pb-1">
-              Behavioral Conduct & Co-Curricular Assessment
-            </h4>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] border border-slate-800 p-2.5 bg-slate-50">
-              <div className="border-r border-slate-300 pr-2">
-                <span className="text-slate-500 block text-[10px]">Cleanliness & Uniform:</span>
-                <strong className="text-slate-900 font-bold">A+ (Neat & Tidy)</strong>
-              </div>
-              <div className="border-r border-slate-300 pr-2">
-                <span className="text-slate-500 block text-[10px]">Moral Discipline & Conduct:</span>
-                <strong className="text-slate-900 font-bold">Exemplary</strong>
-              </div>
-              <div className="border-r border-slate-300 pr-2">
-                <span className="text-slate-500 block text-[10px]">Punctuality & Regularity:</span>
-                <strong className="text-slate-900 font-bold">Always Punctual</strong>
-              </div>
-              <div>
-                <span className="text-slate-500 block text-[10px]">Class Participation:</span>
-                <strong className="text-slate-900 font-bold">Active & Diligent</strong>
-              </div>
-            </div>
-          </div>
-
           {/* Result Standing & Performance Banner */}
-          <div className="my-4 p-3 bg-slate-100 border-2 border-slate-800 rounded-sm grid grid-cols-1 sm:grid-cols-3 gap-3 text-center text-xs">
+          <div className="my-2 p-2 bg-slate-100 border border-slate-800 rounded-sm grid grid-cols-3 gap-2 text-center text-xs">
             <div>
-              <span className="text-slate-500 uppercase text-[10px] font-bold block">Class Standing / Rank:</span>
-              <strong className={`text-base font-extrabold ${rankInfo.isTopper ? 'text-blue-900' : 'text-slate-800'}`}>
+              <span className="text-slate-500 uppercase text-[9px] font-bold block">Class Standing / Rank:</span>
+              <strong className={`text-xs font-extrabold ${rankInfo.isTopper ? 'text-blue-900' : 'text-slate-800'}`}>
                 {rankInfo.positionText}
               </strong>
             </div>
             <div>
-              <span className="text-slate-500 uppercase text-[10px] font-bold block">Academic Result:</span>
-              <strong className="text-base font-extrabold text-emerald-800">
+              <span className="text-slate-500 uppercase text-[9px] font-bold block">Academic Result:</span>
+              <strong className="text-xs font-extrabold text-emerald-800">
                 {hasRecordedMarks ? (parseFloat(overallPercentage || '0') >= 40 ? 'PASSED & PROMOTED' : 'NEEDS RE-APPEAR') : 'AWAITING MARKS'}
               </strong>
             </div>
             <div>
-              <span className="text-slate-500 uppercase text-[10px] font-bold block">Overall Evaluation:</span>
-              <strong className="text-base font-extrabold text-slate-900">
+              <span className="text-slate-500 uppercase text-[9px] font-bold block">Overall Evaluation:</span>
+              <strong className="text-xs font-extrabold text-slate-900">
                 Grade {gradeInfo.grade} ({gradeInfo.title})
               </strong>
             </div>
           </div>
 
           {/* Remarks Section */}
-          <div className="my-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <div className="p-3 border border-slate-800 bg-white">
-              <span className="font-bold text-slate-800 uppercase block text-[10px] border-b border-slate-200 pb-1 mb-1">
+          <div className="my-2 grid grid-cols-2 gap-2 text-xs">
+            <div className="p-2 border border-slate-800 bg-white">
+              <span className="font-bold text-slate-800 uppercase block text-[9.5px] border-b border-slate-200 pb-0.5 mb-0.5">
                 Class Teacher&apos;s Remarks:
               </span>
-              <p className="text-slate-700 italic text-[11px] leading-relaxed">
+              <p className="text-slate-700 italic text-[10px] leading-tight">
                 &ldquo;{teacherRemarks}&rdquo;
               </p>
             </div>
 
-            <div className="p-3 border border-slate-800 bg-white">
-              <span className="font-bold text-slate-800 uppercase block text-[10px] border-b border-slate-200 pb-1 mb-1">
+            <div className="p-2 border border-slate-800 bg-white">
+              <span className="font-bold text-slate-800 uppercase block text-[9.5px] border-b border-slate-200 pb-0.5 mb-0.5">
                 Principal&apos;s Message:
               </span>
-              <p className="text-slate-700 italic text-[11px] leading-relaxed">
+              <p className="text-slate-700 italic text-[10px] leading-tight">
                 &ldquo;{principalMessage}&rdquo;
               </p>
             </div>
           </div>
 
-          {/* Grading Criteria Formula Key */}
-          <div className="my-3 border border-slate-800 text-[9px] p-2 bg-slate-50">
-            <div className="font-bold text-slate-800 uppercase mb-1">Grading Scale & Division Formula:</div>
-            <div className="grid grid-cols-6 gap-1 text-center font-mono">
-              <div className="bg-white p-1 border border-slate-200">
-                <strong>80% &amp; Above</strong>: A+ (Outstanding)
-              </div>
-              <div className="bg-white p-1 border border-slate-200">
-                <strong>70% - 79%</strong>: A (Excellent)
-              </div>
-              <div className="bg-white p-1 border border-slate-200">
-                <strong>60% - 69%</strong>: B (Very Good)
-              </div>
-              <div className="bg-white p-1 border border-slate-200">
-                <strong>50% - 59%</strong>: C (Good)
-              </div>
-              <div className="bg-white p-1 border border-slate-200">
-                <strong>40% - 49%</strong>: D (Satisfactory)
-              </div>
-              <div className="bg-white p-1 border border-slate-200 text-rose-700 font-bold">
-                <strong>Below 40%</strong>: F (Fail)
-              </div>
-            </div>
-          </div>
-
           {/* Official Signatures & Verification Seal */}
-          <div className="mt-8 pt-4 border-t-2 border-slate-900 grid grid-cols-4 gap-4 text-center text-xs">
+          <div className="mt-4 pt-3 border-t-2 border-slate-900 grid grid-cols-4 gap-3 text-center text-xs">
             {/* Class Teacher */}
             <div className="flex flex-col justify-end">
-              <div className="h-10 border-b border-dashed border-slate-500 mb-1" />
-              <span className="font-bold text-slate-800 text-[11px]">Class Teacher Signature</span>
+              <div className="h-8 border-b border-dashed border-slate-500 mb-1 flex items-center justify-center">
+                <span className="italic text-xs font-serif text-slate-700 font-bold opacity-75">Teacher Sign</span>
+              </div>
+              <span className="font-bold text-slate-800 text-[10px]">Class Teacher</span>
             </div>
 
             {/* Exam Controller */}
             <div className="flex flex-col justify-end">
-              <div className="h-10 border-b border-dashed border-slate-500 mb-1" />
-              <span className="font-bold text-slate-800 text-[11px]">Controller of Examinations</span>
+              <div className="h-8 border-b border-dashed border-slate-500 mb-1 flex items-center justify-center">
+                <span className="italic text-xs font-serif text-slate-700 font-bold opacity-75">Controller Sign</span>
+              </div>
+              <span className="font-bold text-slate-800 text-[10px]">Controller Exam</span>
             </div>
 
             {/* Parent Signature */}
             <div className="flex flex-col justify-end">
-              <div className="h-10 border-b border-dashed border-slate-500 mb-1" />
-              <span className="font-bold text-slate-800 text-[11px]">Parent / Guardian Signature</span>
+              <div className="h-8 border-b border-dashed border-slate-500 mb-1" />
+              <span className="font-bold text-slate-800 text-[10px]">Parent Signature</span>
             </div>
 
             {/* Principal Stamp & Signature */}
             <div className="flex flex-col items-center justify-end relative">
-              {/* Circular Stamp */}
-              <div className="w-16 h-16 rounded-full border-2 border-blue-900/40 text-blue-900 flex flex-col items-center justify-center text-[7px] font-bold uppercase tracking-tighter absolute -top-8 rotate-[-12deg] pointer-events-none text-center px-1">
-                <span className="truncate max-w-full">{schoolSettings.schoolName || 'OFFICIAL'}</span>
-                <span>{schoolSettings.city ? `★ ${schoolSettings.city.toUpperCase()} ★` : '★ SEAL ★'}</span>
-                <span>VERIFIED</span>
+              <div className="h-8 border-b border-dashed border-slate-500 mb-1 w-full flex items-center justify-center">
+                {schoolSettings.principalSignatureUrl ? (
+                  <img
+                    src={schoolSettings.principalSignatureUrl}
+                    alt="Principal Signature"
+                    className="max-h-full object-contain mx-auto"
+                  />
+                ) : (
+                  <span
+                    className="italic text-sm font-bold text-slate-900 select-none"
+                    style={{ fontFamily: '"Brush Script MT", "Dancing Script", cursive' }}
+                  >
+                    {schoolSettings.principalName || 'Principal'}
+                  </span>
+                )}
               </div>
-              <div className="w-full h-10 border-b border-dashed border-slate-500 mb-1" />
-              <span className="font-bold text-slate-900 text-[11px]">Principal / Head of School</span>
+              <span className="font-bold text-slate-900 text-[10px]">Principal / Head</span>
             </div>
           </div>
 
           {/* Verification Timestamp */}
-          <div className="mt-4 pt-2 border-t border-slate-300 flex items-center justify-between text-[10px] text-slate-500">
-            <span>Date of Issue: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-            <span>Document Serial: {(schoolSettings.affiliationNumber || schoolSettings.schoolCode || 'EDU')}-TR-{student.rollNumber || '01'}-{Date.now().toString().slice(-6)}</span>
-            <span>Verified by Controller Office</span>
+          <div className="mt-2 pt-1 border-t border-slate-300 flex items-center justify-between text-[9px] text-slate-500">
+            <span>Issue Date: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+            <span>Doc Ref: {(schoolSettings.affiliationNumber || schoolSettings.schoolCode || 'EDU')}-TR-{student.rollNumber || '01'}</span>
+            <span>Controller Verification Seal</span>
           </div>
         </div>
       </div>
