@@ -2,6 +2,7 @@ import express, { Response } from 'express';
 import { serverStore, ServerUser } from '../store.js';
 import { hashPassword, validatePasswordPolicy, sanitizeUserOutput } from '../security.js';
 import { authenticateToken, requireRole, AuthenticatedRequest } from '../middleware/auth.js';
+import { deleteUserFromDb } from '../db.js';
 
 const router = express.Router();
 
@@ -59,8 +60,10 @@ router.post('/', requireRole('Super Admin', 'School Admin'), async (req: Authent
     }
 
     const passwordHash = await hashPassword(password);
+    const cleanUsername = (req.body.username || email.split('@')[0]).trim().toLowerCase();
     const newUser: ServerUser = {
       id: `u-${Date.now()}`,
+      username: cleanUsername,
       name: name.trim(),
       email: email.toLowerCase().trim(),
       passwordHash,
@@ -75,6 +78,7 @@ router.post('/', requireRole('Super Admin', 'School Admin'), async (req: Authent
     };
 
     serverStore.users.unshift(newUser);
+    serverStore.saveUsersToDisk();
 
     serverStore.recordAuditLog({
       userId: req.user?.id || 'admin',
@@ -138,6 +142,8 @@ router.put('/:id', requireRole('Super Admin', 'School Admin'), async (req: Authe
       user.passwordHash = await hashPassword(password);
     }
 
+    serverStore.saveUsersToDisk();
+
     serverStore.recordAuditLog({
       userId: req.user?.id || 'admin',
       userName: req.user?.name || 'Administrator',
@@ -175,6 +181,8 @@ router.delete('/:id', requireRole('Super Admin'), (req: AuthenticatedRequest, re
 
   const deletedUser = serverStore.users[index];
   serverStore.users.splice(index, 1);
+  deleteUserFromDb(id);
+  serverStore.saveUsersToDisk();
 
   // Terminate any active sessions belonging to deleted user
   for (const [sessionId, sess] of serverStore.activeSessions.entries()) {
@@ -212,6 +220,7 @@ router.post('/:id/reset-password', requireRole('Super Admin', 'School Admin'), a
 
   const tempPass = `GIA-${Math.random().toString(36).substring(2, 6).toUpperCase()}!${Math.floor(100 + Math.random() * 900)}`;
   user.passwordHash = await hashPassword(tempPass);
+  serverStore.saveUsersToDisk();
 
   serverStore.recordAuditLog({
     userId: req.user?.id || 'admin',
@@ -249,6 +258,7 @@ router.post('/:id/approve', requireRole('Super Admin', 'School Admin'), (req: Au
   user.status = 'Active';
   user.reviewedBy = req.user?.name || 'Super Admin';
   user.reviewedAt = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  serverStore.saveUsersToDisk();
 
   serverStore.recordAuditLog({
     userId: req.user?.id || 'admin',
@@ -290,6 +300,7 @@ router.post('/:id/reject', requireRole('Super Admin', 'School Admin'), (req: Aut
   user.rejectionReason = reason;
   user.reviewedBy = req.user?.name || 'Super Admin';
   user.reviewedAt = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  serverStore.saveUsersToDisk();
 
   // Invalidate any existing sessions
   for (const [sessionId, sess] of serverStore.activeSessions.entries()) {

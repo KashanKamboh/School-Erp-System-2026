@@ -91,12 +91,13 @@ router.post('/complete', async (req: Request, res: Response): Promise<void> => {
       ? adminAccount.email.trim().toLowerCase()
       : `${cleanUsername}@school.local`;
 
-    // Hash password securely
-    const passwordHash = await bcrypt.hash(adminAccount.password, 10);
+    // Hash password securely with bcrypt (12 rounds)
+    const passwordHash = await bcrypt.hash(adminAccount.password, 12);
 
     // 3. Create Super Admin User
     const adminUser: ServerUser = {
       id: `usr-superadmin-${Date.now()}`,
+      username: cleanUsername,
       name: adminAccount.name.trim(),
       email: adminEmail,
       passwordHash,
@@ -118,9 +119,10 @@ router.post('/complete', async (req: Request, res: Response): Promise<void> => {
       },
     };
 
-    // Store user as primary administrator
+    // Store user as primary administrator in memory and SQLite persistent store
     serverStore.users = [adminUser];
     serverStore.saveUsersToDisk();
+    console.log(`[Setup] Super Admin account created: username="${adminUser.username}", email="${adminUser.email}", role="${adminUser.role}"`);
 
     // 4. Construct School Configuration
     const currency = schoolSettings?.currency || 'PKR';

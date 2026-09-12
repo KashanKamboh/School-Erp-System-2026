@@ -5,7 +5,7 @@ import { serverStore, ServerUser, ActiveSession } from '../store.js';
 import { hashPassword, verifyPassword, validatePasswordPolicy, sanitizeUserOutput } from '../security.js';
 import { loginRateLimiter, passwordResetRateLimiter } from '../middleware/rateLimit.js';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth.js';
-import { isSystemSetupCompleted } from '../db.js';
+import { isSystemSetupCompleted, getDbPath, saveUserToDb } from '../db.js';
 
 const router = express.Router();
 
@@ -30,6 +30,9 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response): Pro
     const userAgent = req.headers['user-agent'] || 'Unknown Browser';
     const normalizedIdentifier = email.toLowerCase().trim();
 
+    console.log(`[Auth Debug] Processing login request for identifier: "${normalizedIdentifier}"`);
+    console.log(`[Auth Debug] Active database path: ${getDbPath()}`);
+
     // Check brute-force lockout status for this email or IP
     const lockStatus = serverStore.isLockedOut(normalizedIdentifier);
     if (lockStatus.locked) {
@@ -51,13 +54,9 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response): Pro
       return;
     }
 
-    // 1. Direct user lookup by email, username or name
-    const user = serverStore.users.find(
-      (u) =>
-        u.email.toLowerCase() === normalizedIdentifier ||
-        u.email.toLowerCase().split('@')[0] === normalizedIdentifier ||
-        u.name.toLowerCase() === normalizedIdentifier
-    );
+    // 1. Direct user lookup supporting Login ID / Username, Email, ID, or Full Name
+    const user = serverStore.findUserByIdentifier(normalizedIdentifier);
+    console.log(`[Auth Debug] User lookup result: ${user ? `FOUND (id: ${user.id}, role: ${user.role}, username: ${user.username || 'n/a'}, email: ${user.email})` : 'NOT FOUND'}`);
 
     if (!user) {
       // Track failed attempt for rate limiting / lockout
@@ -168,6 +167,7 @@ router.post('/login', loginRateLimiter, async (req: Request, res: Response): Pro
       console.error('[Auth] Password verification error:', verifyErr);
       isPasswordValid = false;
     }
+    console.log(`[Auth Debug] Password verification result for "${user.email}": ${isPasswordValid ? 'SUCCESS' : 'FAILED'}`);
 
     if (!isPasswordValid) {
       const attemptInfo = serverStore.trackFailedLogin(normalizedIdentifier);
@@ -356,6 +356,7 @@ router.post('/signup', loginRateLimiter, async (req: Request, res: Response): Pr
       const userId = `u-admin-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
       userRecord = {
         id: userId,
+        username: normalizedEmail.split('@')[0],
         name: name.trim(),
         email: normalizedEmail,
         passwordHash,

@@ -12,7 +12,8 @@ import studentsRoutes from '../server/routes/students.routes.js';
 import erpRoutes from '../server/routes/erp.routes.js';
 import setupRoutes from '../server/routes/setup.routes.js';
 import { generalApiLimiter } from '../server/middleware/rateLimit.js';
-import { initSQLiteSchema } from '../server/db.js';
+import { initSQLiteSchema, reconnectSQLiteDatabase } from '../server/db.js';
+import { serverStore } from '../server/store.js';
 
 export interface EmbeddedServerInfo {
   server: http.Server;
@@ -24,10 +25,11 @@ export async function startEmbeddedServer(userDataPath: string, distDir: string)
   // Ensure ELECTRON_USER_DATA is set for server/db.js and server/store.js
   process.env.ELECTRON_USER_DATA = userDataPath;
 
-  // Initialize SQLite Database Schema & Tables
+  // Initialize and reconnect SQLite Database Schema & Tables in persistent userDataPath
   try {
-    initSQLiteSchema();
-    console.log('[Embedded Server] SQLite schema initialized at:', userDataPath);
+    reconnectSQLiteDatabase(userDataPath);
+    serverStore.initDefaultUsers();
+    console.log('[Embedded Server] Persistent SQLite & Users initialized at:', userDataPath);
   } catch (dbErr) {
     console.error('[Embedded Server] Database schema initialization warning:', dbErr);
   }

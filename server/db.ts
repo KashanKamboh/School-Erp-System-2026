@@ -2,29 +2,84 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 
-const dbDir = process.env.ELECTRON_USER_DATA
+let activeDbDir = process.env.ELECTRON_USER_DATA
   ? process.env.ELECTRON_USER_DATA
   : path.join(process.cwd(), 'server');
 
-try {
-  if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
-  }
-} catch (dirErr) {
-  console.warn('[SQLite] Could not ensure directory for database:', dirErr);
+export function getDbPath(): string {
+  const dir = process.env.ELECTRON_USER_DATA || activeDbDir;
+  return path.join(dir, process.env.ELECTRON_USER_DATA ? 'edupulse_school_erp.sqlite' : 'edupulse.sqlite');
 }
 
-const dbPath = path.join(dbDir, process.env.ELECTRON_USER_DATA ? 'edupulse_school_erp.sqlite' : 'edupulse.sqlite');
+function createDbInstance(targetPath: string): Database.Database {
+  try {
+    const dir = path.dirname(targetPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  } catch (dirErr) {
+    console.warn('[SQLite] Could not ensure directory for database:', dirErr);
+  }
+  const instance = new Database(targetPath);
+  instance.pragma('journal_mode = WAL');
+  instance.pragma('foreign_keys = ON');
+  return instance;
+}
 
-export const db: Database.Database = new Database(dbPath);
+export let db: Database.Database = createDbInstance(getDbPath());
 
-// Enable WAL mode for high concurrency & performance
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+export function reconnectSQLiteDatabase(newDbDir: string): Database.Database {
+  if (!newDbDir) return db;
+  activeDbDir = newDbDir;
+  process.env.ELECTRON_USER_DATA = newDbDir;
+  const newPath = getDbPath();
+  try {
+    db = createDbInstance(newPath);
+    initSQLiteSchema();
+    console.log(`[SQLite] Reconnected to persistent database at: ${newPath}`);
+  } catch (err) {
+    console.error('[SQLite] Failed to reconnect to database at:', newPath, err);
+  }
+  return db;
+}
 
 // Initialize schema
 export function initSQLiteSchema() {
   db.exec(`
+    -- Users table (Persistent Authentication & Authorization Source)
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      username TEXT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'Active',
+      department TEXT,
+      phone TEXT,
+      avatar TEXT,
+      two_factor_enabled INTEGER DEFAULT 0,
+      student_id TEXT,
+      parent_child_ids TEXT,
+      registration_reason TEXT,
+      requested_role TEXT,
+      submitted_at TEXT,
+      reviewed_by TEXT,
+      reviewed_at TEXT,
+      rejection_reason TEXT,
+      permissions TEXT,
+      custom_module_permissions TEXT,
+      last_login TEXT,
+      last_ip TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+    CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+    CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+    CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);
+
     -- Fee Categories table
     CREATE TABLE IF NOT EXISTS fee_categories (
       id TEXT PRIMARY KEY,
@@ -466,19 +521,23 @@ export function saveSchoolConfig(configUpdates: any): any {
   return merged;
 }
 
-export function markSystemSetupCompleted(schoolConfig: any): void {
+export function markSystemSetupCompleted(schoolConfig: any, adminUser?: any): void {
   const now = new Date().toISOString();
   const tx = db.transaction(() => {
     setSystemSetting('system_setup_completed', 'true');
     setSystemSetting('school_config', JSON.stringify(schoolConfig));
     setSystemSetting('setup_completed_at', now);
+    if (adminUser) {
+      saveUserToDb(adminUser);
+    }
   });
   tx();
 }
 
 export function resetAllSystemData(): void {
   const tx = db.transaction(() => {
-    // Delete all transactional, relational, and business data
+    // Delete all transactional, relational, user, and business data
+    db.prepare('DELETE FROM users').run();
     db.prepare('DELETE FROM attendance_records').run();
     db.prepare('DELETE FROM fee_payments').run();
     db.prepare('DELETE FROM fee_voucher_items').run();
@@ -497,6 +556,183 @@ export function resetAllSystemData(): void {
     setSystemSetting('system_setup_completed', 'false');
   });
   tx();
+}
+
+// ----------------------------------------------------
+// Persistent User Authentication & Authorization Helpers
+// ----------------------------------------------------
+
+export function getAllUsersFromDb(): any[] {
+  try {
+    const rows = db.prepare('SELECT * FROM users ORDER BY created_at DESC').all() as any[];
+    return rows.map((r) => ({
+      id: r.id,
+      username: r.username || (r.email ? r.email.split('@')[0] : ''),
+      name: r.name,
+      email: r.email,
+      passwordHash: r.password_hash,
+      role: r.role,
+      status: r.status,
+      department: r.department || '',
+      phone: r.phone || '',
+      avatar: r.avatar || '',
+      twoFactorEnabled: !!r.two_factor_enabled,
+      studentId: r.student_id || undefined,
+      parentChildIds: r.parent_child_ids ? JSON.parse(r.parent_child_ids) : undefined,
+      registrationReason: r.registration_reason || undefined,
+      requestedRole: r.requested_role || undefined,
+      submittedAt: r.submitted_at || undefined,
+      reviewedBy: r.reviewed_by || undefined,
+      reviewedAt: r.reviewed_at || undefined,
+      rejectionReason: r.rejection_reason || undefined,
+      permissions: r.permissions ? JSON.parse(r.permissions) : undefined,
+      customModulePermissions: r.custom_module_permissions ? JSON.parse(r.custom_module_permissions) : undefined,
+      lastLogin: r.last_login || 'Never',
+      lastIp: r.last_ip || undefined,
+      createdAt: r.created_at,
+    }));
+  } catch (err) {
+    console.error('[SQLite] Error fetching users:', err);
+    return [];
+  }
+}
+
+export function getUserByLoginId(identifier: string): any | null {
+  if (!identifier) return null;
+  const norm = identifier.trim().toLowerCase();
+  try {
+    const row = db.prepare(`
+      SELECT * FROM users
+      WHERE LOWER(username) = ?
+         OR LOWER(email) = ?
+         OR LOWER(id) = ?
+         OR LOWER(name) = ?
+         OR LOWER(SUBSTR(email, 1, INSTR(email || '@', '@') - 1)) = ?
+      LIMIT 1
+    `).get(norm, norm, norm, norm, norm) as any;
+
+    if (!row) return null;
+    return {
+      id: row.id,
+      username: row.username || (row.email ? row.email.split('@')[0] : ''),
+      name: row.name,
+      email: row.email,
+      passwordHash: row.password_hash,
+      role: row.role,
+      status: row.status,
+      department: row.department || '',
+      phone: row.phone || '',
+      avatar: row.avatar || '',
+      twoFactorEnabled: !!row.two_factor_enabled,
+      studentId: row.student_id || undefined,
+      parentChildIds: row.parent_child_ids ? JSON.parse(row.parent_child_ids) : undefined,
+      registrationReason: row.registration_reason || undefined,
+      requestedRole: row.requested_role || undefined,
+      submittedAt: row.submitted_at || undefined,
+      reviewedBy: row.reviewed_by || undefined,
+      reviewedAt: row.reviewed_at || undefined,
+      rejectionReason: row.rejection_reason || undefined,
+      permissions: row.permissions ? JSON.parse(row.permissions) : undefined,
+      customModulePermissions: row.custom_module_permissions ? JSON.parse(row.custom_module_permissions) : undefined,
+      lastLogin: row.last_login || 'Never',
+      lastIp: row.last_ip || undefined,
+      createdAt: row.created_at,
+    };
+  } catch (err) {
+    console.error('[SQLite] Error querying user by login ID:', err);
+    return null;
+  }
+}
+
+export function saveUserToDb(user: any): void {
+  const now = new Date().toISOString();
+  try {
+    const stmt = db.prepare(`
+      INSERT INTO users (
+        id, username, name, email, password_hash, role, status, department, phone, avatar,
+        two_factor_enabled, student_id, parent_child_ids, registration_reason, requested_role,
+        submitted_at, reviewed_by, reviewed_at, rejection_reason, permissions, custom_module_permissions,
+        last_login, last_ip, created_at, updated_at
+      ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?
+      )
+      ON CONFLICT(id) DO UPDATE SET
+        username = excluded.username,
+        name = excluded.name,
+        email = excluded.email,
+        password_hash = excluded.password_hash,
+        role = excluded.role,
+        status = excluded.status,
+        department = excluded.department,
+        phone = excluded.phone,
+        avatar = excluded.avatar,
+        two_factor_enabled = excluded.two_factor_enabled,
+        student_id = excluded.student_id,
+        parent_child_ids = excluded.parent_child_ids,
+        registration_reason = excluded.registration_reason,
+        requested_role = excluded.requested_role,
+        submitted_at = excluded.submitted_at,
+        reviewed_by = excluded.reviewed_by,
+        reviewed_at = excluded.reviewed_at,
+        rejection_reason = excluded.rejection_reason,
+        permissions = excluded.permissions,
+        custom_module_permissions = excluded.custom_module_permissions,
+        last_login = excluded.last_login,
+        last_ip = excluded.last_ip,
+        updated_at = excluded.updated_at
+    `);
+
+    stmt.run(
+      user.id,
+      user.username || (user.email ? user.email.split('@')[0] : ''),
+      user.name,
+      user.email,
+      user.passwordHash,
+      user.role,
+      user.status || 'Active',
+      user.department || '',
+      user.phone || '',
+      user.avatar || '',
+      user.twoFactorEnabled ? 1 : 0,
+      user.studentId || null,
+      user.parentChildIds ? JSON.stringify(user.parentChildIds) : null,
+      user.registrationReason || null,
+      user.requestedRole || null,
+      user.submittedAt || null,
+      user.reviewedBy || null,
+      user.reviewedAt || null,
+      user.rejectionReason || null,
+      user.permissions ? JSON.stringify(user.permissions) : null,
+      user.customModulePermissions ? JSON.stringify(user.customModulePermissions) : null,
+      user.lastLogin || 'Never',
+      user.lastIp || null,
+      user.createdAt || now.split('T')[0],
+      now
+    );
+  } catch (err) {
+    console.error('[SQLite] Error saving user to database:', err);
+  }
+}
+
+export function saveAllUsersToDb(users: any[]): void {
+  if (!Array.isArray(users)) return;
+  const tx = db.transaction((userList: any[]) => {
+    for (const u of userList) {
+      saveUserToDb(u);
+    }
+  });
+  tx(users);
+}
+
+export function deleteUserFromDb(userId: string): void {
+  try {
+    db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+  } catch (err) {
+    console.error('[SQLite] Error deleting user from database:', err);
+  }
 }
 
 export function seedDefaultFeeStructures() {

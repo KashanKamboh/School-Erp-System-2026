@@ -100,6 +100,40 @@ function createFallbackDatabase(dbPath: string) {
 
 function initTables(db: any) {
   db.exec(`
+    -- 0. Users table (Persistent Authentication & Authorization Source)
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      username TEXT,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'Active',
+      department TEXT,
+      phone TEXT,
+      avatar TEXT,
+      two_factor_enabled INTEGER DEFAULT 0,
+      student_id TEXT,
+      parent_child_ids TEXT,
+      registration_reason TEXT,
+      requested_role TEXT,
+      submitted_at TEXT,
+      reviewed_by TEXT,
+      reviewed_at TEXT,
+      rejection_reason TEXT,
+      permissions TEXT,
+      custom_module_permissions TEXT,
+      last_login TEXT,
+      last_ip TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+    CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+    CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+    CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);
+
     -- 1. System & School Settings
     CREATE TABLE IF NOT EXISTS school_settings (
       id TEXT PRIMARY KEY,

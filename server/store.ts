@@ -1,6 +1,11 @@
 import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
+
+const getStoreDir = (): string => {
+  if (typeof __dirname !== 'undefined') return __dirname;
+  return path.join(process.cwd(), 'server');
+};
 import { initialUsers, initialStudents, initialTeachers, initialStaff, initialClasses, initialAttendanceRecords, initialFeeStructures, initialFeeInvoices, initialExams, initialExamSchedules, initialExamResults, initialTimetableSlots, initialHomeworks, initialLibraryBooks, initialLibraryTransactions, initialVehicles, initialRoutes, initialPayroll, initialLeaveRequests, initialExpenses, initialNotices, initialMessages, initialNotifications, initialAuditLogs, initialSchoolSettings } from '../src/data/mockErpData.js';
 import { initialRoleDefinitions, initialSecurityPolicy } from '../src/data/rbacData.js';
 import {
@@ -10,10 +15,17 @@ import {
   seedDefaultStudentsIfEmpty,
   getAllStudentsFromDb,
   getAttendanceRecordsFromDb,
+  getAllUsersFromDb,
+  getUserByLoginId,
+  saveUserToDb,
+  saveAllUsersToDb,
+  deleteUserFromDb,
+  getDbPath,
 } from './db.js';
 
 export interface ServerUser {
   id: string;
+  username?: string;
   name: string;
   email: string;
   passwordHash: string;
@@ -58,7 +70,7 @@ export interface FailedLoginRecord {
   lockedUntil?: number;
 }
 
-// In-Memory Database Store with Server Authority
+// In-Memory Database Store with Server Authority & SQLite Persistence
 class ServerStore {
   public users: ServerUser[] = [];
   public activeSessions: Map<string, ActiveSession> = new Map();
@@ -93,7 +105,7 @@ class ServerStore {
   public messages: any[] = [];
   public notifications: any[] = [];
 
-  private get dbFilePath(): string {
+  public get dbFilePath(): string {
     if (process.env.ELECTRON_USER_DATA) {
       return path.join(process.env.ELECTRON_USER_DATA, 'db_users.json');
     }
@@ -114,7 +126,7 @@ class ServerStore {
       this.students = getAllStudentsFromDb();
       this.attendanceRecords = getAttendanceRecordsFromDb();
     } catch (err) {
-      console.warn('Error loading entities from SQLite:', err);
+      console.warn('[Store] Error loading entities from SQLite:', err);
     }
   }
 
@@ -126,58 +138,108 @@ class ServerStore {
         return;
       }
     } catch (err) {
-      console.warn('Error loading saved school settings from database:', err);
+      console.warn('[Store] Error loading saved school settings from database:', err);
     }
     this.schoolSettings = { ...initialSchoolSettings };
   }
 
   public saveUsersToDisk() {
     try {
+      // 1. Persist directly into SQLite table
+      saveAllUsersToDb(this.users);
+      console.log(`[Store] Successfully synchronized ${this.users.length} users to persistent SQLite database at: ${getDbPath()}`);
+    } catch (err) {
+      console.error('[Store] Error saving users to SQLite:', err);
+    }
+
+    // 2. Also safely update JSON backup file
+    try {
+      const targetDir = path.dirname(this.dbFilePath);
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+      }
       fs.writeFileSync(this.dbFilePath, JSON.stringify(this.users, null, 2), 'utf8');
     } catch (err) {
-      console.warn('Could not persist users to disk:', err);
+      // Safe guard against read-only packaged app paths
+      console.warn('[Store] JSON disk backup notice:', (err as any)?.message || err);
     }
   }
 
-  private initDefaultUsers() {
-    // Load persistent users from disk if present
-    if (fs.existsSync(this.dbFilePath)) {
-      try {
-        const raw = fs.readFileSync(this.dbFilePath, 'utf8');
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          this.users = parsed;
-          return;
-        }
-      } catch (err) {
-        console.warn('Error reading saved users:', err);
+  public initDefaultUsers() {
+    // 1. Primary Source of Truth: SQLite Database
+    try {
+      const dbUsers = getAllUsersFromDb();
+      if (Array.isArray(dbUsers) && dbUsers.length > 0) {
+        this.users = dbUsers;
+        console.log(`[Store] Loaded ${this.users.length} users directly from persistent SQLite database.`);
+        return;
       }
+    } catch (dbErr) {
+      console.warn('[Store] Notice querying SQLite users on initialization:', dbErr);
     }
 
-    // If running in Electron and userData db_users.json is not yet created, check bundled server/db_users.json
-    if (process.env.ELECTRON_USER_DATA) {
-      const candidatePaths = [
-        path.join(process.cwd(), 'server', 'db_users.json'),
-        path.join(__dirname, '../server', 'db_users.json'),
-        path.join(__dirname, 'db_users.json'),
-      ];
-      for (const p of candidatePaths) {
-        if (fs.existsSync(p)) {
-          try {
-            const raw = fs.readFileSync(p, 'utf8');
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              this.users = parsed;
-              this.saveUsersToDisk();
-              return;
-            }
-          } catch {}
+    // 2. Migration fallback: Check JSON file if SQLite was empty
+    const candidatePaths = [
+      this.dbFilePath,
+      path.join(process.cwd(), 'server', 'db_users.json'),
+      path.join(getStoreDir(), 'db_users.json'),
+      path.join(getStoreDir(), '../server', 'db_users.json'),
+    ];
+
+    for (const p of candidatePaths) {
+      if (fs.existsSync(p)) {
+        try {
+          const raw = fs.readFileSync(p, 'utf8');
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            this.users = parsed;
+            console.log(`[Store] Migrating ${this.users.length} users from JSON file (${p}) into persistent SQLite...`);
+            this.saveUsersToDisk();
+            return;
+          }
+        } catch (readErr) {
+          console.warn(`[Store] Could not parse users from ${p}:`, readErr);
         }
       }
     }
 
     // Zero demo users by default on fresh install
     this.users = [];
+  }
+
+  /**
+   * Comprehensive user lookup supporting Login ID / Username, Email, Prefix, ID, and Name
+   */
+  public findUserByIdentifier(identifier: string): ServerUser | undefined {
+    if (!identifier) return undefined;
+    const norm = identifier.trim().toLowerCase();
+
+    // 1. Check in-memory store
+    const inMem = this.users.find(
+      (u) =>
+        (u.username && u.username.toLowerCase() === norm) ||
+        u.email.toLowerCase() === norm ||
+        u.email.toLowerCase().split('@')[0] === norm ||
+        u.id.toLowerCase() === norm ||
+        u.name.toLowerCase() === norm
+    );
+
+    if (inMem) return inMem;
+
+    // 2. Direct lookup in SQLite in case of real-time multi-process update
+    try {
+      const fromDb = getUserByLoginId(identifier);
+      if (fromDb) {
+        // Cache in memory
+        const exists = this.users.some((u) => u.id === fromDb.id);
+        if (!exists) {
+          this.users.push(fromDb);
+        }
+        return fromDb;
+      }
+    } catch {}
+
+    return undefined;
   }
 
   public recordAuditLog(log: {
