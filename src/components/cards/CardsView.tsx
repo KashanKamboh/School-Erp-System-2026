@@ -27,6 +27,7 @@ import {
   Award,
 } from 'lucide-react';
 import { CertificateGenerator } from './CertificateGenerator';
+import { OfficialIdCard } from './OfficialIdCard';
 
 type CardCategory = 'all' | 'students' | 'teachers' | 'staff' | 'certificates';
 type CardOrientation = 'vertical' | 'horizontal';
@@ -505,6 +506,20 @@ const StudentCardItem: React.FC<StudentCardProps> = ({
             emergencyContact={student.emergencyContact || student.fatherPhone}
             orientation={orientation}
           />
+        ) : orientation === 'vertical' ? (
+          <OfficialIdCard
+            type="student"
+            data={student}
+            settings={{
+              schoolName,
+              logoUrl: schoolLogo,
+              affiliationNumber,
+              registrationNumber,
+              currentSession: sessionYear,
+              phone: schoolPhone,
+              address: schoolAddress,
+            }}
+          />
         ) : (
           <StudentFrontFace
             student={student}
@@ -721,6 +736,20 @@ const TeacherCardItem: React.FC<TeacherCardProps> = ({
             emergencyContact={teacher.emergencyContact || teacher.phone}
             orientation={orientation}
           />
+        ) : orientation === 'vertical' ? (
+          <OfficialIdCard
+            type="teacher"
+            data={teacher}
+            settings={{
+              schoolName,
+              logoUrl: schoolLogo,
+              affiliationNumber,
+              registrationNumber,
+              currentSession: sessionYear,
+              phone: schoolPhone,
+              address: schoolAddress,
+            }}
+          />
         ) : (
           <TeacherFrontFace
             teacher={teacher}
@@ -924,6 +953,20 @@ const StaffCardItem: React.FC<StaffCardProps> = ({
             schoolAddress={schoolAddress}
             emergencyContact={staff.emergencyContact || staff.phone}
             orientation={orientation}
+          />
+        ) : orientation === 'vertical' ? (
+          <OfficialIdCard
+            type="staff"
+            data={staff}
+            settings={{
+              schoolName,
+              logoUrl: schoolLogo,
+              affiliationNumber,
+              registrationNumber,
+              currentSession: sessionYear,
+              phone: schoolPhone,
+              address: schoolAddress,
+            }}
           />
         ) : (
           <StaffFrontFace

@@ -26,6 +26,7 @@ import {
   Award,
   XCircle,
 } from 'lucide-react';
+import { OfficialIdCard } from '../cards/OfficialIdCard';
 
 interface StudentProfileViewProps {
   student: Student;
@@ -607,53 +608,19 @@ export const StudentProfileView: React.FC<StudentProfileViewProps> = ({
 
       {/* Printable ID Card */}
       {activeTab === 'idcard' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col items-center">
-          <div className="w-full max-w-sm bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 rounded-2xl text-white p-6 shadow-2xl relative overflow-hidden border-2 border-white/20">
-            <div className="flex items-center justify-between border-b border-white/20 pb-3">
-              <div>
-                <h4 className="font-extrabold text-sm tracking-wider uppercase">
-                  {schoolSettings.schoolName || 'ACADEMY'}
-                </h4>
-                <p className="text-[9px] text-blue-200 uppercase">Official Student Identity Card</p>
-              </div>
-              {schoolSettings.logoUrl ? (
-                <img src={schoolSettings.logoUrl} alt="Logo" className="w-7 h-7 object-contain rounded-full bg-white/20 p-0.5" />
-              ) : (
-                <GraduationCap className="w-6 h-6 text-blue-200" />
-              )}
-            </div>
-
-            <div className="mt-5 flex items-center gap-4">
-              <Avatar
-                name={`${student.firstName} ${student.lastName}`}
-                src={student.photoUrl}
-                size="lg"
-                className="ring-2 ring-white"
-              />
-              <div className="min-w-0">
-                <h5 className="font-bold text-base leading-tight">
-                  {student.firstName} {student.lastName}
-                </h5>
-                <p className="text-xs text-blue-200 mt-0.5">Class: {student.class}-{student.section}</p>
-                <p className="text-xs text-blue-200">Roll: {student.rollNumber}</p>
-              </div>
-            </div>
-
-            <div className="mt-5 pt-3 border-t border-white/20 grid grid-cols-2 gap-2 text-[10px] text-blue-100">
-              <div>
-                <span className="text-blue-300 block">Admission No:</span>
-                <span className="font-bold text-white">{student.admissionNo}</span>
-              </div>
-              <div>
-                <span className="text-blue-300 block">Emergency:</span>
-                <span className="font-bold text-white">{student.parentPhone}</span>
-              </div>
-            </div>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col items-center">
+          <div className="transform transition-transform hover:scale-[1.01]">
+            <OfficialIdCard
+              type="student"
+              data={student}
+              settings={schoolSettings}
+              cardId="student-profile-id-badge"
+            />
           </div>
 
           <button
             onClick={() => window.print()}
-            className="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs"
+            className="mt-6 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-indigo-600/20 cursor-pointer transition-all"
           >
             <Printer className="w-4 h-4" />
             <span>Print Student ID Card</span>

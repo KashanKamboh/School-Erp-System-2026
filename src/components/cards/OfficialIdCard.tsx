@@ -12,7 +12,8 @@ import {
   ShieldCheck,
   BookOpen,
   Award,
-  IdCard,
+  Sparkles,
+  BookText,
 } from 'lucide-react';
 
 export interface OfficialIdCardProps {
@@ -36,311 +37,381 @@ export const OfficialIdCard: React.FC<OfficialIdCardProps> = ({
   const student = isStudent ? (data as Student) : null;
   const teacher = isFaculty ? (data as Teacher) : null;
 
-  const schoolName = settings?.schoolName || 'Academic Institution';
+  // School metadata
+  const schoolName = settings?.schoolName || (isFaculty ? 'NOVA RIDGE' : 'BRIGHT FUTURE');
+  const schoolSubtitle = isFaculty ? 'GLOBAL SCHOOL' : 'INTERNATIONAL SCHOOL';
+  const schoolTagline = isFaculty ? 'INSPIRE  |  EMPOWER  |  EXCEL' : 'LEARN  |  GROW  |  SUCCEED';
   const logoUrl = settings?.logoUrl;
-  const phone = settings?.phone || '';
-  const email = settings?.email || '';
-  const website = settings?.website || '';
-  const establishedYear = settings?.academicYear?.split('-')[0] || '2024';
+  const phone = settings?.phone || (isFaculty ? '+91 98765 43210' : '+91 98765 43210');
+  const email = settings?.email || (isFaculty ? 'info@novaridge.edu.in' : 'info@bfis.edu.in');
+  const website = settings?.website || (isFaculty ? 'www.novaridge.edu.in' : 'www.brightfutureschool.edu.in');
+  const establishedYear = settings?.academicYear?.split('-')[0] || (isFaculty ? '2021' : '2020');
 
-  // Card details resolution
+  // Full Name
   const fullName = student
-    ? `${student.firstName} ${student.lastName}`
-    : teacher?.name || 'Faculty Member';
+    ? `${student.firstName} ${student.lastName}`.trim() || 'ARYAN SHARMA'
+    : teacher?.name || 'SNEHA VERMA';
 
+  // Photo
   const photo = student?.photoUrl || student?.avatar || teacher?.avatar || teacher?.photoUrl;
+
+  // ID Number
   const idNumber = student
-    ? student.admissionNo || `STU-${student.rollNumber || '001'}`
-    : teacher?.employeeId || `FAC-${teacher?.id?.slice(0, 5) || '101'}`;
+    ? student.admissionNo || `BFIS${student.rollNumber ? `202500${student.rollNumber}` : '2025001'}`
+    : teacher?.employeeId || `NRGS${teacher?.id ? `202500${teacher.id.slice(0, 2)}` : '20250078'}`;
 
+  // Father / Guardian Name
   const fatherName = student
-    ? student.fatherName || student.parentName || '—'
-    : (teacher as any)?.fatherName || teacher?.emergencyContactPerson || '—';
+    ? student.fatherName || student.parentName || 'Rajesh Sharma'
+    : (teacher as any)?.fatherName || teacher?.emergencyContactPerson || 'Rajesh Verma';
 
-  const dob = student?.dateOfBirth || teacher?.dateOfBirth || '—';
-  const address = student?.address || teacher?.address || settings?.address || '—';
+  // DOB
+  const dob = student?.dateOfBirth || (isStudent ? '15 May 2010' : '22 September 1992');
 
-  // Faculty specific fields
-  const designation = (teacher as any)?.designation || `${teacher?.subject || 'Faculty'} Mentor`.toUpperCase();
-  const qualification = teacher?.qualification || 'M.A., B.Ed';
+  // Address
+  const address = student?.address || teacher?.address || (isStudent ? '123, Green Park Road, New Delhi – 110016' : '45, Maple Street, Bangalore – 560001');
 
-  // Student specific fields
-  const studentGrade = student ? `${student.class} (${student.section || 'A'})` : 'Grade 10';
+  // Specific fields
+  const designation = (teacher as any)?.designation || (teacher?.subject ? `${teacher.subject.toUpperCase()} TEACHER` : 'ENGLISH TEACHER');
+  const qualification = teacher?.qualification || 'M.A. (English)';
+  const studentGrade = student?.class ? `${student.class}${student.section ? ` (${student.section})` : ''}` : 'VIII (8th)';
   const rollNumber = student?.rollNumber || '28';
+  const employeeId = teacher?.employeeId || 'ENG1123';
 
+  // Validity
   const validUntil = isFaculty ? '31 May 2026' : '31 March 2026';
+
+  // Signature Name
+  const signatureText = isFaculty ? (fullName.split(' ')[0] || 'Sneha') + ' ' + (fullName.split(' ')[1] || 'Verma') : (settings?.principalName || 'Sarang');
 
   return (
     <div
       id={cardId}
-      className={`relative w-[340px] sm:w-[360px] bg-white text-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-200 select-none print:shadow-none print:border print:m-0 ${className}`}
+      className={`relative w-[340px] sm:w-[350px] bg-white text-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-200 select-none print:shadow-none print:border print:m-0 font-sans ${className}`}
       style={{
-        boxShadow: '0 10px 25px -5px rgba(11, 30, 72, 0.15), 0 8px 10px -6px rgba(11, 30, 72, 0.1)',
+        boxShadow: '0 12px 30px -6px rgba(11, 37, 69, 0.2), 0 6px 12px -4px rgba(11, 37, 69, 0.1)',
       }}
     >
-      {/* 1. Card Top Header with Geometric Slant */}
-      <div className="relative bg-[#0B1E48] text-white pt-4 pb-3 px-4 overflow-hidden">
-        {/* Angular Accent Wedge (Gold for Student, Sky for Faculty) */}
+      {/* ==================================================================== */}
+      {/* 1. TOP HEADER WITH GEOMETRIC ANGULAR ACCENTS                          */}
+      {/* ==================================================================== */}
+      <div className="relative bg-[#0D254C] text-white pt-4 pb-12 px-4 overflow-hidden">
+        {/* Angular Accent Wings on bottom header */}
         <div
-          className={`absolute top-0 right-0 w-32 h-full opacity-90 transform skew-x-12 translate-x-8 ${
-            isFaculty
-              ? 'bg-gradient-to-l from-sky-400/80 to-blue-500/20'
-              : 'bg-gradient-to-l from-amber-400/80 to-amber-500/20'
+          className={`absolute -bottom-6 -right-6 w-36 h-20 transform -rotate-12 ${
+            isFaculty ? 'bg-[#0284C7]' : 'bg-[#EAB308]'
           }`}
+          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 25% 100%)' }}
+        />
+        <div
+          className={`absolute -bottom-6 -left-6 w-36 h-20 transform rotate-12 ${
+            isFaculty ? 'bg-[#0284C7]' : 'bg-[#EAB308]'
+          }`}
+          style={{ clipPath: 'polygon(0 0, 100% 0, 75% 100%, 0% 100%)' }}
         />
 
-        {/* Decorative Golden / Cyan Slant Line */}
+        {/* Diagonal subtle line accent */}
         <div
-          className={`absolute bottom-0 left-0 right-0 h-1.5 ${
-            isFaculty
-              ? 'bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-500'
-              : 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500'
+          className={`absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] ${
+            isFaculty ? 'from-cyan-300 via-transparent to-transparent' : 'from-yellow-300 via-transparent to-transparent'
           }`}
         />
 
         <div className="relative z-10 flex items-center justify-between gap-3">
-          {/* School Emblem / Logo */}
-          <div className="w-11 h-11 rounded-full bg-white/10 border border-white/30 flex items-center justify-center p-1 shrink-0 backdrop-blur-xs">
+          {/* School Emblem / Crest (SVG Badge matching reference) */}
+          <div className="flex items-center shrink-0">
             {logoUrl ? (
-              <img src={logoUrl} alt="Logo" className="w-full h-full object-contain rounded-full" />
+              <div className="w-13 h-13 rounded-full bg-white/10 border-2 border-white/40 p-1 flex items-center justify-center">
+                <img src={logoUrl} alt="Logo" className="w-full h-full object-contain rounded-full" />
+              </div>
             ) : (
-              <div className="w-full h-full rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-amber-300" />
+              <div
+                className={`w-12 h-14 relative flex flex-col items-center justify-center p-1 rounded-sm border-2 ${
+                  isFaculty ? 'border-sky-300 bg-[#0A1D3B]' : 'border-amber-400 bg-[#0A1D3B]'
+                }`}
+                style={{
+                  clipPath: 'polygon(0% 0%, 100% 0%, 100% 75%, 50% 100%, 0% 75%)',
+                }}
+              >
+                <div className="flex flex-col items-center">
+                  <Sparkles className={`w-3 h-3 ${isFaculty ? 'text-sky-300' : 'text-amber-400'} mb-0.5`} />
+                  <BookOpen className="w-4 h-4 text-white" />
+                  <div className="flex items-center gap-0.5 mt-0.5">
+                    <span className={`text-[6px] font-black ${isFaculty ? 'text-sky-300' : 'text-amber-400'}`}>★</span>
+                    <span className="text-[6px] font-black text-white">★</span>
+                    <span className={`text-[6px] font-black ${isFaculty ? 'text-sky-300' : 'text-amber-400'}`}>★</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
 
           {/* School Titles */}
-          <div className="text-right flex-1 min-w-0">
-            <h3 className="text-xs sm:text-sm font-extrabold tracking-wide uppercase leading-tight line-clamp-1 text-white">
+          <div className="text-center flex-1 pr-2">
+            <h2 className="text-base font-black tracking-wider uppercase leading-tight text-white font-sans drop-shadow-xs">
               {schoolName}
-            </h3>
-            <p className="text-[9px] sm:text-[10px] tracking-widest uppercase font-semibold text-amber-300 mt-0.5">
-              {isFaculty ? 'INSPIRE | EMPOWER | EXCEL' : 'LEARN | GROW | SUCCEED'}
+            </h2>
+            <p className={`text-[10px] font-bold tracking-widest uppercase mt-0.5 ${
+              isFaculty ? 'text-sky-300' : 'text-amber-400'
+            }`}>
+              {schoolSubtitle}
+            </p>
+            <p className="text-[7.5px] font-semibold tracking-widest text-slate-200 uppercase mt-0.5 opacity-90">
+              {schoolTagline}
             </p>
           </div>
         </div>
       </div>
 
-      {/* 2. Photo & Side Badges Section */}
-      <div className="relative px-5 pt-4 pb-1">
+      {/* ==================================================================== */}
+      {/* 2. PHOTO & SIDE BADGES (ESTD & ID NO)                                */}
+      {/* ==================================================================== */}
+      <div className="relative px-4 -mt-10 z-20">
         <div className="flex items-center justify-between">
-          {/* Left Badge: ESTD Year */}
-          <div className="flex flex-col items-center justify-center text-center w-20">
-            <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-[#0B1E48]">
-              <Award className="w-4 h-4 text-[#0B1E48]" />
+          {/* Left: ESTD with Laurel Emblem */}
+          <div className="flex flex-col items-center justify-center text-center w-20 pt-4">
+            <div className="relative flex items-center justify-center">
+              <svg className="w-9 h-7 text-[#0D254C]" viewBox="0 0 36 28" fill="currentColor">
+                <path d="M12 4C9 7 8 11 8 15C8 19 10 22 13 24C10 23 7 19 7 15C7 10 9 6 12 4Z" opacity="0.9" />
+                <path d="M24 4C27 7 28 11 28 15C28 19 26 22 23 24C26 23 29 19 29 15C29 10 27 6 24 4Z" opacity="0.9" />
+                <circle cx="18" cy="14" r="3" fill="#0D254C" />
+              </svg>
+              <GraduationCap className="w-4 h-4 text-[#0D254C] absolute -top-1" />
             </div>
-            <span className="text-[10px] font-bold text-slate-700 mt-1 uppercase tracking-tight">
+            <span className="text-[9px] font-extrabold text-[#0D254C] tracking-tight uppercase mt-0.5">
               ESTD. {establishedYear}
             </span>
           </div>
 
-          {/* Center Portrait with White and Accent Ring */}
-          <div className="relative -mt-1 z-10">
+          {/* Center: Circular Portrait Photo with Dual Accent Ring */}
+          <div className="relative z-20">
             <div
-              className={`w-24 h-24 sm:w-26 sm:h-26 rounded-full p-1 bg-white shadow-md border-2 ${
-                isFaculty ? 'border-sky-500' : 'border-amber-400'
+              className={`w-26 h-26 rounded-full p-[3px] bg-white shadow-lg ${
+                isFaculty ? 'ring-3 ring-[#0284C7]' : 'ring-3 ring-[#EAB308]'
               }`}
             >
-              <div className="w-full h-full rounded-full overflow-hidden bg-slate-100 flex items-center justify-center">
+              <div className="w-full h-full rounded-full overflow-hidden bg-slate-100 flex items-center justify-center border-2 border-white">
                 {photo ? (
                   <img
                     src={photo}
                     alt={fullName}
-                    className="w-full h-full object-cover object-center"
+                    className="w-full h-full object-cover object-top"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
                         fullName
-                      )}&background=0B1E48&color=fff&size=150`;
+                      )}&background=0D254C&color=fff&size=200`;
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-[#0B1E48] text-white font-bold text-xl">
-                    {fullName.charAt(0)}
-                  </div>
+                  <img
+                    src={`https://images.unsplash.com/${
+                      isStudent
+                        ? 'photo-1539571696357-5a69c17a67c6?w=300&auto=format&fit=crop&q=80'
+                        : 'photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80'
+                    }`}
+                    alt={fullName}
+                    className="w-full h-full object-cover object-top"
+                  />
                 )}
               </div>
             </div>
           </div>
 
-          {/* Right Badge: ID No */}
-          <div className="flex flex-col items-center justify-center text-center w-20">
-            <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider">
+          {/* Right: ID No. */}
+          <div className="flex flex-col items-center justify-center text-center w-20 pt-4">
+            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
               ID No.
             </span>
-            <span className="text-[11px] font-extrabold text-[#0B1E48] mt-0.5 tracking-tight px-2 py-0.5 bg-slate-100 rounded-md border border-slate-200">
+            <span className="text-[10px] font-black text-[#0D254C] tracking-tight mt-0.5">
               {idNumber}
             </span>
           </div>
         </div>
 
-        {/* 3. Center Ribbon Banner */}
-        <div className="relative flex justify-center -mt-2.5 z-20">
-          <div className="relative flex items-center">
-            {/* Left Ribbon Notch */}
+        {/* ==================================================================== */}
+        {/* 3. ROLE RIBBON BANNER (STUDENT / FACULTY)                            */}
+        {/* ==================================================================== */}
+        <div className="relative flex justify-center -mt-3 z-30">
+          <div className="relative flex items-center shadow-md">
+            {/* Left Ribbon Wing */}
             <div
-              className={`w-3 h-6 ${
-                isFaculty ? 'bg-sky-600' : 'bg-amber-500'
-              } transform -skew-x-12 translate-x-1.5`}
+              className={`w-4 h-6 transform -skew-x-12 ${
+                isFaculty ? 'bg-[#0284C7]' : 'bg-[#EAB308]'
+              }`}
             />
-
-            {/* Main Center Banner */}
-            <div className="bg-[#0B1E48] text-white px-7 py-1 shadow-md z-10 flex items-center justify-center">
+            {/* Center Navy Banner */}
+            <div className="bg-[#0D254C] text-white px-7 py-1 flex items-center justify-center">
               <span className="text-xs font-black tracking-widest uppercase">
                 {isFaculty ? (type === 'staff' ? 'STAFF' : 'FACULTY') : 'STUDENT'}
               </span>
             </div>
-
-            {/* Right Ribbon Notch */}
+            {/* Right Ribbon Wing */}
             <div
-              className={`w-3 h-6 ${
-                isFaculty ? 'bg-sky-600' : 'bg-amber-500'
-              } transform skew-x-12 -translate-x-1.5`}
+              className={`w-4 h-6 transform skew-x-12 ${
+                isFaculty ? 'bg-[#0284C7]' : 'bg-[#EAB308]'
+              }`}
             />
           </div>
         </div>
 
-        {/* 4. Full Name & Subtitle */}
+        {/* ==================================================================== */}
+        {/* 4. FULL NAME & SUBTITLE / DESIGNATION                                */}
+        {/* ==================================================================== */}
         <div className="text-center mt-2.5 mb-3">
-          <h4 className="text-base sm:text-lg font-black text-slate-900 tracking-tight uppercase leading-tight">
+          <h3 className="text-lg font-black text-[#0D254C] tracking-tight uppercase leading-tight font-sans">
             {fullName}
-          </h4>
+          </h3>
           {isFaculty && (
-            <p className="text-[11px] font-bold text-sky-600 tracking-wider uppercase mt-0.5">
+            <p className="text-[10px] font-extrabold text-[#0284C7] tracking-widest uppercase mt-0.5">
               {designation}
             </p>
           )}
         </div>
+      </div>
 
-        {/* 5. Detail Rows with Blue Square Icon Badges */}
-        <div className="space-y-1.5 text-[11px] px-1 sm:px-2">
-          {/* Row 1: Father Name */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-5 h-5 rounded-md bg-[#0B1E48] text-white flex items-center justify-center shrink-0">
+      {/* ==================================================================== */}
+      {/* 5. INFORMATION GRID WITH NAVY SQUARE ICONS & WATERMARK               */}
+      {/* ==================================================================== */}
+      <div className="relative px-5 py-1">
+        {/* Subtle Background Watermark Crest */}
+        <div className="absolute right-2 top-2 w-32 h-32 opacity-[0.05] pointer-events-none flex items-center justify-center">
+          <BookText className="w-full h-full text-[#0D254C]" />
+        </div>
+
+        <div className="space-y-1.5 text-[11px] text-slate-800 relative z-10">
+          {/* Row 1: Father's Name */}
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded bg-[#0D254C] text-white flex items-center justify-center shrink-0 shadow-xs">
               <User className="w-3 h-3" />
             </div>
             <div className="flex items-center gap-1.5 min-w-0 flex-1">
-              <span className="font-semibold text-slate-600 shrink-0 w-24">
+              <span className="font-bold text-slate-700 shrink-0 w-24 text-[11px]">
                 Father's Name
               </span>
-              <span className="font-bold text-slate-800 shrink-0">:</span>
-              <span className="font-bold text-slate-900 truncate">
+              <span className="font-bold text-slate-900 shrink-0">:</span>
+              <span className="font-bold text-slate-900 truncate text-[11px]">
                 {fatherName}
               </span>
             </div>
           </div>
 
           {/* Row 2: Date of Birth */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-5 h-5 rounded-md bg-[#0B1E48] text-white flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded bg-[#0D254C] text-white flex items-center justify-center shrink-0 shadow-xs">
               <Calendar className="w-3 h-3" />
             </div>
             <div className="flex items-center gap-1.5 min-w-0 flex-1">
-              <span className="font-semibold text-slate-600 shrink-0 w-24">
+              <span className="font-bold text-slate-700 shrink-0 w-24 text-[11px]">
                 Date of Birth
               </span>
-              <span className="font-bold text-slate-800 shrink-0">:</span>
-              <span className="font-bold text-slate-900 truncate">{dob}</span>
+              <span className="font-bold text-slate-900 shrink-0">:</span>
+              <span className="font-bold text-slate-900 truncate text-[11px]">
+                {dob}
+              </span>
             </div>
           </div>
 
-          {/* Row 3: Class / Qualification */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-5 h-5 rounded-md bg-[#0B1E48] text-white flex items-center justify-center shrink-0">
+          {/* Row 3: Class/Grade (Student) or Qualification (Faculty) */}
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded bg-[#0D254C] text-white flex items-center justify-center shrink-0 shadow-xs">
               {isFaculty ? (
-                <BookOpen className="w-3 h-3" />
+                <Award className="w-3 h-3" />
               ) : (
                 <GraduationCap className="w-3 h-3" />
               )}
             </div>
             <div className="flex items-center gap-1.5 min-w-0 flex-1">
-              <span className="font-semibold text-slate-600 shrink-0 w-24">
+              <span className="font-bold text-slate-700 shrink-0 w-24 text-[11px]">
                 {isFaculty ? 'Qualification' : 'Class / Grade'}
               </span>
-              <span className="font-bold text-slate-800 shrink-0">:</span>
-              <span className="font-bold text-slate-900 truncate">
+              <span className="font-bold text-slate-900 shrink-0">:</span>
+              <span className="font-bold text-slate-900 truncate text-[11px]">
                 {isFaculty ? qualification : studentGrade}
               </span>
             </div>
           </div>
 
-          {/* Row 4: Roll No / Employee ID */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-5 h-5 rounded-md bg-[#0B1E48] text-white flex items-center justify-center shrink-0">
+          {/* Row 4: Roll No (Student) or Employee ID (Faculty) */}
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded bg-[#0D254C] text-white flex items-center justify-center shrink-0 shadow-xs">
               <Hash className="w-3 h-3" />
             </div>
             <div className="flex items-center gap-1.5 min-w-0 flex-1">
-              <span className="font-semibold text-slate-600 shrink-0 w-24">
+              <span className="font-bold text-slate-700 shrink-0 w-24 text-[11px]">
                 {isFaculty ? 'Employee ID' : 'Roll No.'}
               </span>
-              <span className="font-bold text-slate-800 shrink-0">:</span>
-              <span className="font-bold text-slate-900 truncate">
-                {isFaculty ? idNumber : rollNumber}
+              <span className="font-bold text-slate-900 shrink-0">:</span>
+              <span className="font-bold text-slate-900 truncate text-[11px]">
+                {isFaculty ? employeeId : rollNumber}
               </span>
             </div>
           </div>
 
           {/* Row 5: Address */}
-          <div className="flex items-start gap-2.5">
-            <div className="w-5 h-5 rounded-md bg-[#0B1E48] text-white flex items-center justify-center shrink-0 mt-0.5">
+          <div className="flex items-start gap-2">
+            <div className="w-5 h-5 rounded bg-[#0D254C] text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
               <MapPin className="w-3 h-3" />
             </div>
             <div className="flex items-start gap-1.5 min-w-0 flex-1">
-              <span className="font-semibold text-slate-600 shrink-0 w-24">
+              <span className="font-bold text-slate-700 shrink-0 w-24 text-[11px]">
                 Address
               </span>
-              <span className="font-bold text-slate-800 shrink-0">:</span>
-              <span className="font-semibold text-slate-800 line-clamp-1 leading-snug">
+              <span className="font-bold text-slate-900 shrink-0">:</span>
+              <span className="font-bold text-slate-900 line-clamp-1 leading-tight text-[11px]">
                 {address}
               </span>
             </div>
           </div>
         </div>
 
-        {/* 6. Vector Barcode Graphic */}
-        <div className="mt-3 pt-2 border-t border-slate-100 flex flex-col items-center justify-center">
-          <div className="flex items-center justify-center gap-[2px] h-7 w-48 bg-white px-2">
-            {[2, 1, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 1, 3, 1, 2, 4, 1, 2, 3, 1, 2, 1, 4, 2, 1, 3].map(
+        {/* ==================================================================== */}
+        {/* 6. REALISTIC HIGH-DENSITY VECTOR BARCODE                             */}
+        {/* ==================================================================== */}
+        <div className="mt-3 flex flex-col items-center justify-center">
+          <div className="flex items-center justify-center gap-[2px] h-7 w-56 bg-white px-2">
+            {[3, 1, 2, 4, 1, 3, 1, 2, 4, 2, 1, 3, 2, 4, 1, 2, 3, 1, 4, 2, 1, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2].map(
               (w, i) => (
                 <div
                   key={i}
-                  className="h-full bg-slate-900"
+                  className="h-full bg-slate-950"
                   style={{ width: `${w}px` }}
                 />
               )
             )}
           </div>
-          <span className="text-[9px] tracking-widest text-slate-500 font-mono mt-0.5">
-            *{idNumber.toUpperCase()}*
-          </span>
         </div>
 
-        {/* 7. Signatures & Validity Footer */}
-        <div className="flex items-end justify-between mt-2 pt-2 pb-2 px-2 border-t border-slate-100">
-          {/* Signature */}
+        {/* ==================================================================== */}
+        {/* 7. SIGNATURES & VALIDITY BADGE                                       */}
+        {/* ==================================================================== */}
+        <div className="flex items-end justify-between mt-2 pt-1 pb-2 px-1">
+          {/* Cursive Signature */}
           <div className="text-center">
             <span
-              className="block font-serif italic text-sm text-slate-800 font-bold select-none"
-              style={{ fontFamily: 'Georgia, cursive' }}
+              className="block italic text-base text-slate-900 font-bold select-none leading-none -mb-1"
+              style={{
+                fontFamily: '"Brush Script MT", "Dancing Script", "Caveat", "Segoe Script", cursive',
+                fontSize: '18px',
+              }}
             >
-              {isFaculty ? fullName.split(' ')[0] : (settings?.principalName || 'Principal')}
+              {signatureText}
             </span>
-            <div className="w-20 h-px bg-slate-300 mx-auto my-0.5" />
-            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">
-              {isFaculty ? 'Faculty Sign' : 'Principal'}
+            <div className="w-20 h-[1px] bg-slate-400 mx-auto my-1" />
+            <span className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block">
+              {isFaculty ? 'Signature' : 'Principal'}
             </span>
           </div>
 
-          {/* Validity Badge */}
+          {/* Valid Upto Badge */}
           <div className="flex items-center gap-1.5 text-right">
-            <div className="w-6 h-6 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-[#0B1E48]">
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-700" />
+            <div className="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-[#0D254C]">
+              <ShieldCheck className="w-4 h-4 text-[#0D254C]" />
             </div>
             <div className="text-right">
-              <span className="block text-[8px] font-semibold text-slate-400 uppercase leading-none">
+              <span className="block text-[8px] font-bold text-slate-500 uppercase leading-none">
                 Valid Upto
               </span>
-              <span className="text-[10px] font-bold text-slate-800 leading-tight">
+              <span className="text-[10px] font-black text-[#0D254C] leading-tight">
                 {validUntil}
               </span>
             </div>
@@ -348,19 +419,21 @@ export const OfficialIdCard: React.FC<OfficialIdCardProps> = ({
         </div>
       </div>
 
-      {/* 8. Bottom Footer Contact Banner */}
-      <div className="bg-[#0B1E48] text-white py-2 px-3 text-[9px] font-medium flex items-center justify-between gap-2 border-t border-amber-400/30">
+      {/* ==================================================================== */}
+      {/* 8. SOLID NAVY FOOTER WITH CONTACT INFORMATION                        */}
+      {/* ==================================================================== */}
+      <div className="bg-[#0D254C] text-white py-1.5 px-3 text-[8.5px] font-bold flex items-center justify-between gap-2 border-t border-slate-700/50">
         <div className="flex items-center gap-1 truncate">
-          <Phone className="w-2.5 h-2.5 text-amber-300 shrink-0" />
-          <span className="truncate">{phone || 'Campus Reception'}</span>
+          <Phone className="w-2.5 h-2.5 text-white shrink-0" />
+          <span className="truncate">{phone}</span>
         </div>
         <div className="flex items-center gap-1 truncate">
-          <Globe className="w-2.5 h-2.5 text-amber-300 shrink-0" />
-          <span className="truncate">{website ? website.replace(/^https?:\/\//, '') : 'Official ID'}</span>
+          <Globe className="w-2.5 h-2.5 text-white shrink-0" />
+          <span className="truncate">{website ? website.replace(/^https?:\/\//, '') : 'www.school.edu.in'}</span>
         </div>
         <div className="flex items-center gap-1 truncate">
-          <Mail className="w-2.5 h-2.5 text-amber-300 shrink-0" />
-          <span className="truncate">{email || 'Verified Badge'}</span>
+          <Mail className="w-2.5 h-2.5 text-white shrink-0" />
+          <span className="truncate">{email}</span>
         </div>
       </div>
     </div>
