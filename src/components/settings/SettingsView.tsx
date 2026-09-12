@@ -23,7 +23,21 @@ import {
   AlertTriangle,
   RotateCcw,
   Loader2,
+  DownloadCloud,
+  RefreshCw,
+  Sparkles,
+  WifiOff,
+  PackageCheck,
 } from 'lucide-react';
+import {
+  checkForSoftwareUpdates,
+  downloadSoftwareUpdate,
+  installSoftwareUpdate,
+  getSoftwareUpdateStatus,
+  onSoftwareUpdateStatusChange,
+  isElectronApp,
+} from '../../services/electronBridge';
+import { UpdateStatusInfo } from '../../types/electron';
 
 export const SettingsView: React.FC = () => {
   const { showToast, schoolSettings, updateSchoolSettings } = useERPData();
@@ -37,6 +51,67 @@ export const SettingsView: React.FC = () => {
   const [showResetModal, setShowResetModal] = useState(false);
 
   const isSuperAdmin = currentUser?.role === 'Super Admin';
+  const isDesktop = isElectronApp();
+
+  // Auto-Updater State
+  const [updateStatus, setUpdateStatus] = useState<UpdateStatusInfo>({
+    status: 'idle',
+    currentVersion: '1.0.0',
+  });
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+
+  useEffect(() => {
+    getSoftwareUpdateStatus().then((status) => {
+      if (status) setUpdateStatus(status);
+    });
+
+    const cleanup = onSoftwareUpdateStatusChange((status) => {
+      setUpdateStatus(status);
+      if (status.status !== 'checking') {
+        setIsCheckingUpdate(false);
+      }
+    });
+
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, []);
+
+  const handleManualCheckUpdates = async () => {
+    setIsCheckingUpdate(true);
+    try {
+      const res = await checkForSoftwareUpdates();
+      if (!res.success) {
+        showToast('Update Check', res.error || 'Offline: System operating locally without updates.', 'info');
+      } else if (res.status === 'not-available') {
+        showToast('Up to Date', `EduPulse ERP v${updateStatus.currentVersion} is running the latest available build.`, 'success');
+      }
+    } catch (err: any) {
+      showToast('Update Notice', 'Local mode active. Could not reach update server.', 'info');
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  };
+
+  const handleTriggerDownload = async () => {
+    try {
+      const res = await downloadSoftwareUpdate();
+      if (!res.success) {
+        showToast('Download Error', res.error || 'Failed to download update.', 'error');
+      } else {
+        showToast('Download Started', 'Downloading application update in background...', 'info');
+      }
+    } catch (err: any) {
+      showToast('Download Error', err.message || 'Failed to download update.', 'error');
+    }
+  };
+
+  const handleTriggerInstall = async () => {
+    showToast('Applying Update', 'Saving database snapshot and restarting application...', 'info');
+    setTimeout(() => {
+      installSoftwareUpdate();
+    }, 800);
+  };
 
   const handleExecuteFactoryReset = async () => {
     if (resetConfirmation !== 'RESET SCHOOL DATA') {
@@ -517,6 +592,124 @@ export const SettingsView: React.FC = () => {
       {/* Maintenance & Factory Reset (Super Admin Only) */}
       {activeTab === 'maintenance' && isSuperAdmin && (
         <div className="space-y-6">
+          {/* Software Updates & Versioning Card */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                  <PackageCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                  <span>Software Version & Auto-Updates</span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Automatic releases provided via GitHub. All school databases and user records remain completely local and untouched during updates.
+                </p>
+              </div>
+
+              {isDesktop && (
+                <button
+                  type="button"
+                  onClick={handleManualCheckUpdates}
+                  disabled={isCheckingUpdate || updateStatus.status === 'downloading'}
+                  className="px-4 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer border border-indigo-200/80 dark:border-indigo-800/60 shrink-0 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isCheckingUpdate ? 'animate-spin' : ''}`} />
+                  <span>{isCheckingUpdate ? 'Checking GitHub...' : 'Check for Updates'}</span>
+                </button>
+              )}
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div>
+                  <span className="text-slate-400">Installed Version: </span>
+                  <span className="font-mono font-bold text-slate-900 dark:text-white px-2 py-0.5 bg-slate-200/70 dark:bg-slate-700 rounded-md">
+                    v{updateStatus.currentVersion || '1.0.0'}
+                  </span>
+                </div>
+
+                <div>
+                  {updateStatus.status === 'available' && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 font-bold text-[11px]">
+                      <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                      <span>New Release v{updateStatus.version} Available</span>
+                    </span>
+                  )}
+
+                  {updateStatus.status === 'downloading' && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 font-bold text-[11px]">
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-600" />
+                      <span>Downloading Update ({updateStatus.progress?.percent || 0}%)</span>
+                    </span>
+                  )}
+
+                  {updateStatus.status === 'downloaded' && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 font-bold text-[11px]">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Update Ready to Install</span>
+                    </span>
+                  )}
+
+                  {(updateStatus.status === 'idle' || updateStatus.status === 'not-available') && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 font-medium text-[11px]">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Application is up to date</span>
+                    </span>
+                  )}
+
+                  {updateStatus.status === 'error' && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-200/80 text-slate-700 dark:bg-slate-700 dark:text-slate-300 font-medium text-[11px]">
+                      <WifiOff className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Offline Mode: Operating normally</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Download Progress Bar */}
+              {updateStatus.status === 'downloading' && (
+                <div className="space-y-1.5 pt-1">
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div
+                      className="bg-indigo-600 h-full transition-all duration-300 rounded-full"
+                      style={{ width: `${updateStatus.progress?.percent || 0}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[11px] text-slate-400">
+                    <span>Downloading setup packages from GitHub...</span>
+                    <span>{updateStatus.progress?.percent || 0}%</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              {updateStatus.status === 'available' && (
+                <div className="pt-2 flex items-center justify-end">
+                  <button
+                    type="button"
+                    onClick={handleTriggerDownload}
+                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-2 transition cursor-pointer shadow-sm"
+                  >
+                    <DownloadCloud className="w-4 h-4" />
+                    <span>Download Update (v{updateStatus.version})</span>
+                  </button>
+                </div>
+              )}
+
+              {updateStatus.status === 'downloaded' && (
+                <div className="pt-2 flex items-center justify-end">
+                  <button
+                    type="button"
+                    onClick={handleTriggerInstall}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-2 transition cursor-pointer shadow-sm shadow-emerald-600/20"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Restart & Update Now</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
             <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
               <School className="w-5 h-5 text-blue-600 dark:text-blue-400" />

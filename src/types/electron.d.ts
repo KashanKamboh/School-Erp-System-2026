@@ -7,6 +7,21 @@ export interface ElectronAppInfo {
   isOffline: boolean;
 }
 
+export interface UpdateStatusInfo {
+  status: 'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'downloaded' | 'error';
+  version?: string;
+  releaseDate?: string;
+  releaseNotes?: string;
+  progress?: {
+    percent: number;
+    bytesPerSecond: number;
+    transferred: number;
+    total: number;
+  };
+  error?: string;
+  currentVersion: string;
+}
+
 export interface ElectronAPI {
   isElectron: boolean;
   platform: string;
@@ -16,6 +31,13 @@ export interface ElectronAPI {
   close: () => Promise<void>;
   isMaximized: () => Promise<boolean>;
   onWindowStateChange: (callback: (isMaximized: boolean) => void) => () => void;
+
+  // Auto-Updater (GitHub Releases)
+  checkForUpdates: () => Promise<{ success: boolean; status: string; data?: any; error?: string }>;
+  downloadUpdate: () => Promise<{ success: boolean; error?: string }>;
+  installUpdate: () => Promise<void>;
+  getUpdateStatus: () => Promise<UpdateStatusInfo>;
+  onUpdateStatusChange: (callback: (status: UpdateStatusInfo) => void) => () => void;
 
   // System & App info
   getAppInfo: () => Promise<ElectronAppInfo>;
@@ -28,7 +50,7 @@ export interface ElectronAPI {
   dbRun: (sql: string, params?: any[]) => Promise<{ changes: number; lastInsertRowid: number | bigint }>;
   dbExec: (sql: string) => Promise<void>;
 
-  // High-level transactional operations
+  // High-Level Transactions
   generateBulkVouchers: (vouchers: any[]) => Promise<{ generated: any[]; skippedDuplicates: string[] }>;
   recordPayment: (paymentData: {
     voucherId: string;

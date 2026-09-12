@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Minus, Square, Copy, X, GraduationCap } from 'lucide-react';
+import { Minus, Square, Copy, X, GraduationCap, DownloadCloud, RefreshCw, Sparkles, CheckCircle2 } from 'lucide-react';
+import { UpdateStatusInfo } from '../../types/electron';
 
 export const DesktopTitlebar: React.FC = () => {
   const [isMaximized, setIsMaximized] = useState(false);
+  const [updateInfo, setUpdateInfo] = useState<UpdateStatusInfo | null>(null);
   const isElectron = typeof window !== 'undefined' && !!window.electronAPI?.isElectron;
 
   useEffect(() => {
@@ -12,12 +14,30 @@ export const DesktopTitlebar: React.FC = () => {
       setIsMaximized(!!max);
     });
 
-    const cleanup = window.electronAPI.onWindowStateChange((max) => {
+    const cleanupWindowState = window.electronAPI.onWindowStateChange((max) => {
       setIsMaximized(max);
     });
 
+    // Check initial update status
+    if (window.electronAPI.getUpdateStatus) {
+      window.electronAPI.getUpdateStatus().then((status) => {
+        if (status && status.status !== 'idle') {
+          setUpdateInfo(status);
+        }
+      });
+    }
+
+    // Listen for live update events
+    let cleanupUpdater: (() => void) | undefined;
+    if (window.electronAPI.onUpdateStatusChange) {
+      cleanupUpdater = window.electronAPI.onUpdateStatusChange((status) => {
+        setUpdateInfo(status);
+      });
+    }
+
     return () => {
-      if (cleanup) cleanup();
+      if (cleanupWindowState) cleanupWindowState();
+      if (cleanupUpdater) cleanupUpdater();
     };
   }, [isElectron]);
 
@@ -39,6 +59,18 @@ export const DesktopTitlebar: React.FC = () => {
     }
   };
 
+  const handleDownloadUpdate = async () => {
+    if (window.electronAPI?.downloadUpdate) {
+      await window.electronAPI.downloadUpdate();
+    }
+  };
+
+  const handleInstallUpdate = async () => {
+    if (window.electronAPI?.installUpdate) {
+      await window.electronAPI.installUpdate();
+    }
+  };
+
   return (
     <div
       className="h-8 bg-slate-950 text-slate-300 border-b border-slate-800/80 flex items-center justify-between px-3 select-none text-xs z-50 shrink-0"
@@ -56,12 +88,46 @@ export const DesktopTitlebar: React.FC = () => {
           EduPulse School ERP
         </span>
         <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800/80 text-slate-400 border border-slate-700/60 font-medium">
-          Desktop Edition
+          v{updateInfo?.currentVersion || '1.0.0'}
         </span>
       </div>
 
-      {/* Center Drag Space */}
-      <div className="flex-1 h-full" />
+      {/* Center Drag Space & Live Update Notification Pill */}
+      <div className="flex-1 h-full flex items-center justify-center">
+        {updateInfo?.status === 'available' && (
+          <button
+            onClick={handleDownloadUpdate}
+            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-600/90 hover:bg-blue-500 text-white text-[10px] font-bold shadow-xs transition-all animate-pulse cursor-pointer"
+            title="Click to download application update"
+          >
+            <Sparkles className="w-2.5 h-2.5 text-amber-300" />
+            <span>Update v{updateInfo.version} Available &bull; Click to Download</span>
+          </button>
+        )}
+
+        {updateInfo?.status === 'downloading' && (
+          <div
+            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            className="flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-slate-800 border border-blue-500/50 text-blue-300 text-[10px] font-semibold"
+          >
+            <RefreshCw className="w-2.5 h-2.5 animate-spin text-blue-400" />
+            <span>Downloading Update {updateInfo.progress?.percent || 0}%</span>
+          </div>
+        )}
+
+        {updateInfo?.status === 'downloaded' && (
+          <button
+            onClick={handleInstallUpdate}
+            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold shadow-xs transition-all cursor-pointer"
+            title="Click to restart and apply update"
+          >
+            <CheckCircle2 className="w-2.5 h-2.5 text-emerald-200" />
+            <span>Update Ready &bull; Restart & Install</span>
+          </button>
+        )}
+      </div>
 
       {/* Right Window Controls */}
       <div

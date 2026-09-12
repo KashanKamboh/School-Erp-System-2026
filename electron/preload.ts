@@ -18,6 +18,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
     };
   },
 
+  // Auto-Update Engine (GitHub Releases)
+  checkForUpdates: () => ipcRenderer.invoke('updater:check'),
+  downloadUpdate: () => ipcRenderer.invoke('updater:download'),
+  installUpdate: () => ipcRenderer.invoke('updater:install'),
+  getUpdateStatus: () => ipcRenderer.invoke('updater:getStatus'),
+  onUpdateStatusChange: (callback: (status: any) => void) => {
+    const handler = (_: any, value: any) => callback(value);
+    ipcRenderer.on('updater:status', handler);
+    return () => {
+      ipcRenderer.removeListener('updater:status', handler);
+    };
+  },
+
   // System & Application Information
   getAppInfo: () => ipcRenderer.invoke('app:getInfo'),
   openExternal: (url: string) => ipcRenderer.invoke('app:openExternal', url),

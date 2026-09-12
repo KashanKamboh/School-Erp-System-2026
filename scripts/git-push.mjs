@@ -42,7 +42,7 @@ try {
   run(`remote add origin ${repoUrl}`);
 
   console.log(`📤 Pushing to ${repoUrl} (main branch)...`);
-  const pushOut = execSync(`"${gitExe}" push -u origin main --force`, {
+  const pushOut = execSync(`"${gitExe}" push -u origin main`, {
     cwd: rootDir,
     encoding: 'utf8',
     stdio: 'pipe',

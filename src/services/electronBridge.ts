@@ -53,6 +53,46 @@ export const getDesktopAppInfo = async () => {
   };
 };
 
+// Auto-Updater Bridge Methods
+export const checkForSoftwareUpdates = async () => {
+  const api = getElectronAPI();
+  if (api?.checkForUpdates) {
+    return await api.checkForUpdates();
+  }
+  return { success: false, status: 'not-available', error: 'Auto-updater is only active in packaged desktop build.' };
+};
+
+export const downloadSoftwareUpdate = async () => {
+  const api = getElectronAPI();
+  if (api?.downloadUpdate) {
+    return await api.downloadUpdate();
+  }
+  return { success: false, error: 'Auto-updater is only active in packaged desktop build.' };
+};
+
+export const installSoftwareUpdate = async () => {
+  const api = getElectronAPI();
+  if (api?.installUpdate) {
+    await api.installUpdate();
+  }
+};
+
+export const getSoftwareUpdateStatus = async () => {
+  const api = getElectronAPI();
+  if (api?.getUpdateStatus) {
+    return await api.getUpdateStatus();
+  }
+  return { status: 'idle' as const, currentVersion: '1.0.0' };
+};
+
+export const onSoftwareUpdateStatusChange = (callback: (status: any) => void) => {
+  const api = getElectronAPI();
+  if (api?.onUpdateStatusChange) {
+    return api.onUpdateStatusChange(callback);
+  }
+  return () => {};
+};
+
 export const exportDatabaseBackup = async () => {
   const api = getElectronAPI();
   if (api) {
