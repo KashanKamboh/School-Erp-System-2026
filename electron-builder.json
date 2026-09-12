@@ -1,0 +1,46 @@
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "appId": "com.edupulse.schoolerp",
+  "productName": "EduPulse School ERP",
+  "copyright": "Copyright © 2025 EduPulse School Management System",
+  "npmRebuild": false,
+  "compression": "normal",
+  "directories": {
+    "output": "release",
+    "buildResources": "public"
+  },
+  "files": [
+    "dist/**/*",
+    "dist-electron/**/*",
+    "package.json",
+    "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+    "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+    "!**/node_modules/*.d.ts",
+    "!**/node_modules/.bin"
+  ],
+  "asar": true,
+  "asarUnpack": [
+    "**/node_modules/better-sqlite3/**/*"
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "public/icon.ico",
+    "artifactName": "${productName}-Setup-${version}.${ext}"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "EduPulse School ERP",
+    "uninstallDisplayName": "EduPulse School ERP",
+    "deleteAppDataOnUninstall": false,
+    "differentialPackage": false
+  }
+}

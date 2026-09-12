@@ -1,0 +1,6 @@
+{
+  "name": "EduPulse ERP — School Management System",
+  "description": "A professional offline-ready School ERP system with local SQLite database, Pakistani fee voucher generator, student management, RBAC, attendance, exams, payroll, and standalone Windows desktop (.exe) capabilities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

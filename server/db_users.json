@@ -1,0 +1,179 @@
+[
+  {
+    "id": "usr-superadmin-kashan",
+    "name": "Kashan Tariq",
+    "email": "kashan@gmail.com",
+    "role": "Super Admin",
+    "status": "Active",
+    "department": "Executive Administration",
+    "phone": "+92 300 1234567",
+    "permissions": {
+      "view": true,
+      "create": true,
+      "edit": true,
+      "delete": true,
+      "export": true,
+      "print": true,
+      "approve": true
+    },
+    "passwordHash": "$2b$12$2cZFAGl4l71L6Dq6lGmjjOO6/1u3seT5wdR6sAYPfb8QT3Be8JoSC",
+    "createdAt": "2026-09-01",
+    "lastLogin": "Never",
+    "twoFactorEnabled": false
+  },
+  {
+    "id": "usr-superadmin-default",
+    "name": "Super Administrator",
+    "email": "admin@school.com",
+    "role": "Super Admin",
+    "status": "Active",
+    "department": "Executive Administration",
+    "phone": "+92 300 7654321",
+    "permissions": {
+      "view": true,
+      "create": true,
+      "edit": true,
+      "delete": true,
+      "export": true,
+      "print": true,
+      "approve": true
+    },
+    "passwordHash": "$2b$12$9HHzisbQZaz/9yBmnP/3CuggwiKimu3B0D97YaN6O7c/nl/YbdI3C",
+    "createdAt": "2026-09-01",
+    "lastLogin": "Never",
+    "twoFactorEnabled": false
+  },
+  {
+    "id": "usr-schooladmin-default",
+    "name": "School Administrator",
+    "email": "schooladmin@school.com",
+    "role": "School Admin",
+    "status": "Active",
+    "department": "School Operations",
+    "phone": "+92 300 5551234",
+    "permissions": {
+      "view": true,
+      "create": true,
+      "edit": true,
+      "delete": true,
+      "export": true,
+      "print": true,
+      "approve": true
+    },
+    "passwordHash": "$2b$12$x9x8jGZy434tLJtXEqqz7OFV3IOd0XPaOR/9z6SPZGdg6s5pNQ.CW",
+    "createdAt": "2026-09-01",
+    "lastLogin": "Never",
+    "twoFactorEnabled": false
+  },
+  {
+    "id": "usr-teacher-default",
+    "name": "Prof. Marcus Vance",
+    "email": "teacher@school.com",
+    "role": "Teacher",
+    "status": "Active",
+    "department": "Department of Mathematics",
+    "phone": "+92 300 4445678",
+    "permissions": {
+      "view": true,
+      "create": true,
+      "edit": true,
+      "delete": false,
+      "export": true,
+      "print": true,
+      "approve": false
+    },
+    "passwordHash": "$2b$12$B8vxVsiccL8tVuTIVb9KxePEysdM33i6iee1nuJDmYBrJWSANL5Wa",
+    "createdAt": "2026-09-01",
+    "lastLogin": "Never",
+    "twoFactorEnabled": false
+  },
+  {
+    "id": "usr-accountant-default",
+    "name": "Fatima Malik (CFO)",
+    "email": "accountant@school.com",
+    "role": "Accountant",
+    "status": "Active",
+    "department": "Bursar & Treasury",
+    "phone": "+92 300 3339876",
+    "permissions": {
+      "view": true,
+      "create": true,
+      "edit": true,
+      "delete": false,
+      "export": true,
+      "print": true,
+      "approve": true
+    },
+    "passwordHash": "$2b$12$jJwqNolXDTnbflHuvdXPjukACjMUM.lrkzax89MmWdANVVjOH.t3m",
+    "createdAt": "2026-09-01",
+    "lastLogin": "Never",
+    "twoFactorEnabled": false
+  },
+  {
+    "id": "usr-student-default",
+    "name": "Ayaan Ahmed",
+    "email": "student@school.com",
+    "role": "Student",
+    "status": "Active",
+    "department": "Senior Secondary",
+    "studentId": "std-1",
+    "permissions": {
+      "view": true,
+      "create": false,
+      "edit": false,
+      "delete": false,
+      "export": false,
+      "print": true,
+      "approve": false
+    },
+    "passwordHash": "$2b$12$T7kFamPZEMV1PM7RRRwhOOelMDPgZZe/2WDKt3GXl23Y0SsrYrr7W",
+    "createdAt": "2026-09-01",
+    "lastLogin": "Never",
+    "twoFactorEnabled": false
+  },
+  {
+    "id": "usr-parent-default",
+    "name": "Tariq Mehmood",
+    "email": "parent@school.com",
+    "role": "Parent",
+    "status": "Active",
+    "department": "Parent Community",
+    "parentChildIds": [
+      "std-1"
+    ],
+    "permissions": {
+      "view": true,
+      "create": false,
+      "edit": false,
+      "delete": false,
+      "export": false,
+      "print": true,
+      "approve": false
+    },
+    "passwordHash": "$2b$12$w.ph0ze3TX.LdVfkckAFi.toHNtvfS10wlxLFdQo1E2PxoMd0xCP6",
+    "createdAt": "2026-09-01",
+    "lastLogin": "Never",
+    "twoFactorEnabled": false
+  },
+  {
+    "id": "usr-inactive-default",
+    "name": "Inactive User",
+    "email": "inactive@school.com",
+    "role": "Teacher",
+    "status": "Inactive",
+    "department": "Department of Science",
+    "permissions": {
+      "view": true,
+      "create": false,
+      "edit": false,
+      "delete": false,
+      "export": false,
+      "print": false,
+      "approve": false
+    },
+    "passwordHash": "$2b$12$zLBnT/bZP6fI/6o.n6sIX.Pv6rqvD60U6ODlFh7AyhoT.eMXMpWyy",
+    "createdAt": "2026-09-01",
+    "lastLogin": "Never",
+    "twoFactorEnabled": false
+  }
+]
