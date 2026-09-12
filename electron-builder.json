@@ -37,7 +37,7 @@
       }
     ],
     "icon": "public/icon.ico",
-    "artifactName": "${productName}-Setup-${version}.${ext}"
+    "artifactName": "EduPulse-School-ERP-Setup-${version}.${ext}"
   },
   "nsis": {
     "oneClick": false,
