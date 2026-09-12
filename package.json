@@ -4,7 +4,7 @@
   "description": "Professional offline-ready School ERP system with local SQLite database for Windows desktop",
   "author": "EduPulse Software",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "main": "dist-electron/main.cjs",
   "scripts": {
