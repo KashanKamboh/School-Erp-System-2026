@@ -465,9 +465,16 @@ function setupIpcHandlers() {
       const result = await autoUpdater.checkForUpdates();
       return { success: true, status: updateStatus.status, data: result?.updateInfo };
     } catch (err: any) {
-      console.warn('[AutoUpdater IPC] Check error caught safely (offline):', err?.message);
-      broadcastUpdateStatus({ status: 'error', error: err?.message || 'Offline or GitHub unreachable' });
-      return { success: false, status: 'error', error: err?.message || 'Offline or GitHub unreachable' };
+      const msg = String(err?.message || err || '');
+      let friendlyError = msg;
+      if (msg.includes('404') || msg.includes('latest.yml') || msg.includes('releases')) {
+        friendlyError = 'No published software releases found on GitHub Releases yet. Running latest local build.';
+      } else if (msg.includes('net::ERR') || msg.includes('ENOTFOUND') || msg.includes('offline')) {
+        friendlyError = 'Offline mode: Unable to connect to GitHub update server.';
+      }
+      console.warn('[AutoUpdater IPC] Check notice:', friendlyError);
+      broadcastUpdateStatus({ status: 'not-available', error: friendlyError });
+      return { success: false, status: 'not-available', error: friendlyError };
     }
   });
 

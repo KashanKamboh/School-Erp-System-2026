@@ -83,12 +83,17 @@ export const SettingsView: React.FC = () => {
     try {
       const res = await checkForSoftwareUpdates();
       if (!res.success) {
-        showToast('Update Check', res.error || 'Offline: System operating locally without updates.', 'info');
+        const errStr = String(res.error || '');
+        if (errStr.includes('404') || errStr.includes('releases') || errStr.includes('latest.yml')) {
+          showToast('Up to Date', `EduPulse ERP v${updateStatus.currentVersion} is running the latest available build (No new GitHub Release published).`, 'info');
+        } else {
+          showToast('Update Notice', res.error || 'Operating locally. Current version is active.', 'info');
+        }
       } else if (res.status === 'not-available') {
         showToast('Up to Date', `EduPulse ERP v${updateStatus.currentVersion} is running the latest available build.`, 'success');
       }
     } catch (err: any) {
-      showToast('Update Notice', 'Local mode active. Could not reach update server.', 'info');
+      showToast('Update Notice', 'Local mode active. Current version is running.', 'info');
     } finally {
       setIsCheckingUpdate(false);
     }
